@@ -1,8 +1,12 @@
 const express = require('express');
 const app = express();
+const cors = require('cors'); // CORS 미들웨어 추가
 
 // db 모듈 가져오기
 const db = require('./models/db.js');
+
+// CORS 미들웨어를 사용하여 모든 도메인에서 요청을 허용
+app.use(cors());
 
 // 라우팅 예제
 app.get('/users', (req, res) => {
