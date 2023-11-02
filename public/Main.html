@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>일기 작성 및 응답</title>
+</head>
+
+<body>
+  <h1>일기 작성 및 응답</h1>
+  <textarea id="diaryInput" placeholder="일기를 작성하세요"></textarea>
+  <button onclick="generateResponse()">일기 완료</button>
+  <div id="sentimentContainer"></div> <!-- 감정 분석 결과를 표시할 div 요소 추가 -->
+  <div id="responseContainer"></div>
+
+  <script>
+    async function generateResponse() {
+      const userDiary = document.getElementById("diaryInput").value;
+
+      // 감정 분석 결과를 표시할 div 요소
+      const sentimentContainer = document.getElementById("sentimentContainer");
+      sentimentContainer.innerHTML = "감정 분석 중...";
+
+      const response = await fetch('/generateResponse', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userDiary })
+      });
+
+      const data = await response.json();
+
+      // 감정 분석 결과를 표시할 div 요소에 감정 분석 결과 삽입
+      sentimentContainer.innerHTML = `감정 분석 결과: \n ${data.confidence}`;
+
+      const responseContainer = document.getElementById("responseContainer");
+      responseContainer.innerHTML = `OpenAI 답변: ${data.assistantResponse}`;
+    }
+
+
+  </script>
+</body>
+
+</html>

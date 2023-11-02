@@ -1,0 +1,41 @@
+.signin__img {
+    height: 250px;
+    margin-left: 535px;
+    margin-top: 80px;
+}
+.signin {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+}
+.signin__card{
+    width: 500px;
+    margin: 0 auto;
+    border-radius: 15px;
+    background-color: whitesmoke;
+    box-shadow: 2px 2px 20px rgba(0, 0, 0, .3);
+    color: #555;
+}
+.signin__card h2 {
+    padding: 30px;
+    font-size: 18px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+.signin__card h2 strong{
+    font-weight: 700;
+    color: black;
+}
+
+#custom-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    padding-bottom: 15px;
+}
+
+.signin__card .kakao-login {
+    width: 200px;
+}
