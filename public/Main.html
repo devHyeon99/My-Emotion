@@ -1,46 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>일기 작성 및 응답</title>
+    <title>감정 분석 및 응답 생성</title>
 </head>
-
 <body>
-  <h1>일기 작성 및 응답</h1>
-  <textarea id="diaryInput" placeholder="일기를 작성하세요"></textarea>
-  <button onclick="generateResponse()">일기 완료</button>
-  <div id="sentimentContainer"></div> <!-- 감정 분석 결과를 표시할 div 요소 추가 -->
-  <div id="responseContainer"></div>
+    <h1>감정 분석 및 응답 생성</h1>
+    
+    <form id="diaryForm">
+        <label for="userDiary">일기 내용:</label>
+        <textarea id="userDiary" name="userDiary" rows="4" cols="50"></textarea>
+        <br>
+        <button type="button" onclick="generateResponse()">분석 및 응답 생성</button>
+    </form>
 
-  <script>
-    async function generateResponse() {
-      const userDiary = document.getElementById("diaryInput").value;
+    <div id="result">
+        <h2>분석 결과</h2>
+        <p><strong>감정:</strong> <span id="sentimentResult"></span></p>
+        <p><strong>감정 비율:</strong> <span id="confidenceResult"></span></p>
+        <p><strong>응답:</strong></p>
+        <div id="assistantResponse"></div>
+    </div>
 
-      // 감정 분석 결과를 표시할 div 요소
-      const sentimentContainer = document.getElementById("sentimentContainer");
-      sentimentContainer.innerHTML = "감정 분석 중...";
+    <script>
+        async function generateResponse() {
+            const userDiary = document.getElementById('userDiary').value;
+            const resultContainer = document.getElementById('result');
+            const sentimentResult = document.getElementById('sentimentResult');
+            const confidenceResult = document.getElementById('confidenceResult');
+            const assistantResponse = document.getElementById('assistantResponse');
 
-      const response = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/generateResponse', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userDiary })
-      });
+            const response = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/generateResponse', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userDiary })
+            });
 
-      const data = await response.json();
+            if (response.ok) {
+                const data = await response.json();
+                sentimentResult.textContent = data.sentiment;
+                confidenceResult.textContent = data.confidence;
+                assistantResponse.textContent = data.assistantResponse;
+            } else {
+                sentimentResult.textContent = '오류';
+                confidenceResult.textContent = '오류';
+                assistantResponse.textContent = '오류';
+            }
 
-      // 감정 분석 결과를 표시할 div 요소에 감정 분석 결과 삽입
-      sentimentContainer.innerHTML = `감정 분석 결과: \n ${data.confidence}`;
-
-      const responseContainer = document.getElementById("responseContainer");
-      responseContainer.innerHTML = `OpenAI 답변: ${data.assistantResponse}`;
-    }
-
-
-  </script>
+            resultContainer.style.display = 'block';
+        }
+    </script>
 </body>
-
 </html>
