@@ -1,8 +1,21 @@
-.signin__img {
-    height: 250px;
-    margin-left: 535px;
-    margin-top: 80px;
+.header {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
 }
+.header__img {
+    width: 500px;
+    height: 250px;
+    margin: auto;
+}
+.header__img img{
+    opacity: 0;
+    width: 358px;
+    height: 250px;
+    margin: auto 70px;
+}
+
 .signin {
     background-repeat: no-repeat;
     background-position: center;

@@ -10,12 +10,18 @@
 
     <!-- 카카오SDK로드 -->
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"
+        integrity="sha512-IQLehpLoVS4fNzl7IfH8Iowfm5+RiMGtHykgZJl9AWMgqx0AmJ6cRWcB+GaGVtIsnC4voMfm8f2vwtY+6oPjpQ=="
+        crossorigin="anonymous"></script>
+    <script defer src="./js/index.js"></script>
 </head>
 
 <body>
     <!-- HEADER -->
-    <header>
-        <img class="signin__img" src="./img/My Emotion-logo.png">
+    <header class="header">
+        <div class="header__img">
+            <img src="./img/My Emotion-logo.png">
+        </div>
     </header>
     <!-- SECTION -->
     <section class="signin">
@@ -29,6 +35,7 @@
         </div>
     </section>
 
+    <!-- Kakao Login API -->
     <script type="text/javascript">
         // 2. 카카오 초기화
         Kakao.init('7168560f2aefd9e7c731e481723fcf25');
@@ -57,11 +64,9 @@
                     console.log(res);
                     // 이메일, 성별, 닉네임, 프로필이미지
                     var email = res.kakao_account.email;
-                    var gender = res.kakao_account.gender;
                     var nickname = res.kakao_account.profile.nickname;
-                    var profile_image = res.kakao_account.profile.thumbnail_image_url;
 
-                    console.log(email, gender, nickname, profile_image);
+                    console.log(email, nickname);
                     window.location.href = "./Main.html"; // Main.html로 이동
                 },
                 fail: function (error) {
