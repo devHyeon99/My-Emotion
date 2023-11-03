@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/*"
+  to = "/public/Login.html"
+  status = 200
