@@ -21,25 +21,6 @@ function getUser() {
     });
 }
 
-/* 로그아웃
-function logout() {
-    // 카카오 로그아웃 API 호출
-    Kakao.Auth.logout(function () {
-        // 카카오 세션을 로그아웃한 후 서버에 로그아웃 요청
-        fetch('/logout', {
-            method: 'GET'
-        })
-            .then(response => response.text())
-            .then(data => {
-                console.log(data); // 서버에서 반환한 응답 데이터
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    });
-}
-*/
-
 function logout() {
     const client_id = 'b976cc8aaac258149aeeae2150956032'; // 카카오 개발자 사이트에서 발급한 클라이언트 ID
     const logoutRedirectURI = 'http://localhost:3000/index.html'; // 로그아웃 후 리디렉션될 서비스 로그아웃 URL
@@ -50,7 +31,7 @@ function logout() {
     })
     .then(response => response.text())
     .then(data => {
-        window.location.href = "https://kauth.kakao.com/oauth/logout?client_id=b976cc8aaac258149aeeae2150956032&logout_redirect_uri=http://localhost:3000/index.html";
+        window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=${client_id}&logout_redirect_uri=${logoutRedirectURI}`;
         console.log(data); // 로그아웃 성공 시, 서버에서 반환한 응답 데이터
     })
     .catch(error => {

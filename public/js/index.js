@@ -41,7 +41,7 @@ function getInfo() {
             console.log(email, name);
 
             // 클라이언트 측에서 이메일 확인 후 회원가입 요청
-            fetch('/login', {
+            fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -55,7 +55,7 @@ function getInfo() {
                     } else {
                         if (response.status === 404) {
                             // 이메일이 없을 경우 회원가입 요청
-                            return fetch('/register', {
+                            return fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/register', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
