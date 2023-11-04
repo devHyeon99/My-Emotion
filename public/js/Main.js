@@ -23,7 +23,7 @@ function getUser() {
 
 function logout() {
     const client_id = 'b976cc8aaac258149aeeae2150956032'; // 카카오 개발자 사이트에서 발급한 클라이언트 ID
-    const logoutRedirectURI = 'http://localhost:3000/index.html'; // 로그아웃 후 리디렉션될 서비스 로그아웃 URL
+    const logoutRedirectURI = 'https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/index.html'; // 로그아웃 후 리디렉션될 서비스 로그아웃 URL
 
     // 카카오 로그아웃 API 호출
     fetch(`https://kauth.kakao.com/oauth/logout?client_id=${client_id}&logout_redirect_uri=${logoutRedirectURI}`, {
