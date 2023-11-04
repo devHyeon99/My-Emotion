@@ -1,11 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>감정 분석 및 응답 생성</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Emotion</title>
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <script defer src="./js/Main.js"></script>
 </head>
+
 <body>
-    <h1>감정 분석 및 응답 생성</h1>
-    
+    <h1 id="user-info"></h1>
+    <button onclick="logout()">로그아웃</button>
     <form id="diaryForm">
         <label for="userDiary">일기 내용:</label>
         <textarea id="userDiary" name="userDiary" rows="4" cols="50"></textarea>
@@ -52,4 +58,5 @@
         }
     </script>
 </body>
+
 </html>
