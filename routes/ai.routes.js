@@ -79,7 +79,7 @@ router.post('/generateResponse', async (req, res) => {
 
         const assistantResponse = response.choices[0].message.content;
 
-        const formattedResult = `감정: ${sentimentKorean}\n비율: 부정: ${negativePercent}%, 긍정: ${positivePercent}%, 중립: ${neutralPercent}%`;
+        const formattedResult = `오늘의 일기 감정: ${sentimentKorean}\n비율: 부정: ${negativePercent}%, 긍정: ${positivePercent}%, 중립: ${neutralPercent}%`;
 
         res.json({ sentiment: sentimentKorean, confidence: formattedResult, assistantResponse });
     } catch (error) {
