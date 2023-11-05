@@ -5,7 +5,7 @@
     background-size: cover;
 }
 .header__img {
-    width: 500px;
+    width: 100%;
     height: 250px;
     margin: auto;
 }
@@ -13,7 +13,6 @@
     opacity: 0;
     width: 358px;
     height: 250px;
-    margin: auto 70px;
 }
 
 .signin {
@@ -23,7 +22,7 @@
     background-size: cover;
 }
 .signin__card{
-    width: 500px;
+    width: 100%;
     margin: 0 auto;
     border-radius: 15px;
     background-color: whitesmoke;
@@ -46,7 +45,7 @@
     align-items: center;
     justify-content: center;
     height: auto;
-    padding-bottom: 15px;
+    padding-bottom: 8px;
 }
 
 .signin__card .kakao-login {

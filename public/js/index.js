@@ -50,7 +50,7 @@ function getInfo() {
             })
                 .then(response => {
                     if (response.ok) { // 성공
-                        window.location.href = "/Main.html"; // Main.html로 이동
+                        window.location.href = "./Main.html"; // Main.html로 이동
                         return response.json();
                     } else {
                         if (response.status === 404) {

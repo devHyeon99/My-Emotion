@@ -16,9 +16,18 @@
 }
 
 .nav-link.active {
-    background-color: whitesmoke;
+    background-color: rgb(226, 226, 226);
     color: black;
-    box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 모바일 화면에서 메뉴 항목의 높이를 조절하여 한 줄로 글씨 표시 */
+@media (max-width: 767px) {
+    .nav-link {
+        display: inline-flex;
+        white-space: nowrap; /* 글씨가 넘칠 경우 줄 바꿈 방지 */
+        padding: 0.5em 0.5em;
+    }
 }
 
 /* 사용자에게 일기 작성에 대한 답변 보여주는 부분 */
@@ -56,22 +65,16 @@
 }
 
 /* 일기 입력 하는 부분 */
-.input-group {
-    margin-top: 10px;
-}
-
 #userDiary {
-    width: 83.5%;
-    padding: 10px;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     background-color: white;
     box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.15);
+    margin-right: 10px;
 }
 
-.btn-primary {
+.btn-outline-secondary {
     border: none;
-    padding: 10px 20px;
-    margin-left: 10px;
+    border-radius: 10px;
     box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.2);
 }

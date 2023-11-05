@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Emotion Login</title>
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="./css/Sign.css" />
 
     <!-- 카카오SDK로드 -->
@@ -17,24 +18,38 @@
 </head>
 
 <body>
-    <!-- HEADER -->
-    <header class="header">
-        <div class="header__img">
-            <img src="./img/My Emotion-logo.png">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-14 col-md-3">
+            </div>
+
+            <!-- 화면 중간 부분-->
+            <div class="col-14 col-md-6 black-bg">
+
+                <div class="header__img">
+                    <img src="./img/My Emotion-logo.png">
+                </div>
+
+                <div class="signin__card">
+                    <h2>
+                        <strong>My Emotion에 오신 걸 환영합니다!</strong>
+                    </h2>
+                    <a id="custom-login-btn" href="javascript:loginWithKakao()">
+                        <img class="kakao-login"
+                            src="//k.kakaocdn.net/14/dn/btqCn0WEmI3/nijroPfbpCa4at5EIsjyf0/o.jpg" />
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="col-14 col-md-3">
+            </div>
         </div>
-    </header>
-    <!-- SECTION -->
-    <section class="signin">
-        <div class="signin__card">
-            <h2>
-                <strong>My Emotion에 오신 걸 환영합니다!</strong>
-            </h2>
-            <a id="custom-login-btn" href="javascript:loginWithKakao()">
-                <img class="kakao-login" src="//k.kakaocdn.net/14/dn/btqCn0WEmI3/nijroPfbpCa4at5EIsjyf0/o.jpg" />
-            </a>
-        </div>
-    </section>
-    
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>

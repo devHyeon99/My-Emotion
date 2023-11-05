@@ -12,34 +12,35 @@
 </head>
 
 <body>
-    <div class="container-fluid">
+    <div class="container text-center">
         <div class="row">
-            <div class="col-12 col-md-3">
+            <div class="col-14 col-md-3">
             </div>
+            
             <!-- 화면 중간 부분-->
-            <div class="col-12 col-md-6 black-bg">
-                <div class="container text-center">
+            <div class="col-14 col-md-6 black-bg">
                     <div class="row" style="margin-top: 20px;">
-                        <div class="col">
+                        <div class="col-3">
                             <a href="#menu1" data-toggle="tab" class="nav-link"
                                 onclick="changeTab('menu1', this)">일기작성</a>
                         </div>
-                        <div class="col">
+                        <div class="col-3">
                             <a href="#menu2" data-toggle="tab" class="nav-link"
                                 onclick="changeTab('menu2', this)">일기보기</a>
                         </div>
-                        <div class="col">
+                        <div class="col-3">
                             <a href="#menu3" data-toggle="tab" class="nav-link"
                                 onclick="changeTab('menu3', this)">커뮤니티</a>
                         </div>
-                        <div class="col">
+                        <div class="col-3">
                             <a href="#menu4" data-toggle="tab" class="nav-link active"
-                                onclick="changeTab('menu4', this)">마이페이지</a>
+                                onclick="changeTab('menu4', this)">나의정보</a>
                         </div>
                     </div>
                     <hr>
                     <div class="tab-content">
                         <div id="menu1" class="tab-pane">
+
                             <div class="result">
                                 <div id="chatcontainer" class="chat-container">
                                     <div id="DiaryWrite" class="chat-bubble user-bubble"></div>
@@ -47,11 +48,15 @@
                                     <div id="DiaryWriteView2" class="chat-bubble assistant-bubble"></div>
                                 </div>
                             </div>
-                            <div class="input-group">
-                                <input type="text" id="userDiary" name="userDiary" placeholder="이곳에 일기를 작성해주세요.">
-                                <button type="button" class="btn btn-primary" onclick="generateResponse()">작성완료</button>
+
+                            <div class="input-group mb-3" style="margin-top: 10px;">
+                                <input type="text" id="userDiary" class="form-control" placeholder="이곳에 일기를 작성해주세요."
+                                    aria-label="Recipient's username" aria-describedby="button-addon2">
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon2"
+                                    onclick="generateResponse()">작성완료</button>
                             </div>
                         </div>
+
                         <div id="menu2" class="tab-pane">
                             <p>일기보기 내용이 보이는 곳</p>
                         </div>
@@ -60,14 +65,13 @@
                         </div>
                         <div id="menu4" class="tab-pane active">
                             <p>마이페이지 내용이 보이는 곳</p>
-                            <h1 id="user-info"></h1>
+                            <p id="user-info"></p>
                             <button onclick="logout()">로그아웃</button>
                         </div>
                     </div>
-                </div>
-
             </div>
-            <div class="col-12 col-md-3">
+
+            <div class="col-14 col-md-3">
             </div>
         </div>
     </div>
