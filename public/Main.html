@@ -4,59 +4,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Emotion</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/Main.css">
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
     <script defer src="./js/Main.js"></script>
+    <title>My Emotion</title>
 </head>
 
 <body>
-    <h1 id="user-info"></h1>
-    <button onclick="logout()">로그아웃</button>
-    <form id="diaryForm">
-        <label for="userDiary">일기 내용:</label>
-        <textarea id="userDiary" name="userDiary" rows="4" cols="50"></textarea>
-        <br>
-        <button type="button" onclick="generateResponse()">분석 및 응답 생성</button>
-    </form>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 col-md-3">
+            </div>
+            <!-- 화면 중간 부분-->
+            <div class="col-12 col-md-6 black-bg">
+                <div class="container text-center">
+                    <div class="row" style="margin-top: 20px;">
+                        <div class="col">
+                            <a href="#menu1" data-toggle="tab" class="nav-link"
+                                onclick="changeTab('menu1', this)">일기작성</a>
+                        </div>
+                        <div class="col">
+                            <a href="#menu2" data-toggle="tab" class="nav-link"
+                                onclick="changeTab('menu2', this)">일기보기</a>
+                        </div>
+                        <div class="col">
+                            <a href="#menu3" data-toggle="tab" class="nav-link"
+                                onclick="changeTab('menu3', this)">커뮤니티</a>
+                        </div>
+                        <div class="col">
+                            <a href="#menu4" data-toggle="tab" class="nav-link active"
+                                onclick="changeTab('menu4', this)">마이페이지</a>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="tab-content">
+                        <div id="menu1" class="tab-pane">
+                            <div class="result">
+                                <div id="chatcontainer" class="chat-container">
+                                    <div id="DiaryWrite" class="chat-bubble user-bubble"></div>
+                                    <div id="DiaryWriteView" class="chat-bubble assistant-bubble"></div>
+                                    <div id="DiaryWriteView2" class="chat-bubble assistant-bubble"></div>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="userDiary" name="userDiary" placeholder="이곳에 일기를 작성해주세요.">
+                                <button type="button" class="btn btn-primary" onclick="generateResponse()">작성완료</button>
+                            </div>
+                        </div>
+                        <div id="menu2" class="tab-pane">
+                            <p>일기보기 내용이 보이는 곳</p>
+                        </div>
+                        <div id="menu3" class="tab-pane">
+                            <p>커뮤니티 내용이 보이는 곳</p>
+                        </div>
+                        <div id="menu4" class="tab-pane active">
+                            <p>마이페이지 내용이 보이는 곳</p>
+                            <h1 id="user-info"></h1>
+                            <button onclick="logout()">로그아웃</button>
+                        </div>
+                    </div>
+                </div>
 
-    <div id="result">
-        <h2>분석 결과</h2>
-        <p><strong>감정:</strong> <span id="sentimentResult"></span></p>
-        <p><strong>감정 비율:</strong> <span id="confidenceResult"></span></p>
-        <p><strong>응답:</strong></p>
-        <div id="assistantResponse"></div>
+            </div>
+            <div class="col-12 col-md-3">
+            </div>
+        </div>
     </div>
 
-    <script>
-        async function generateResponse() {
-            const userDiary = document.getElementById('userDiary').value;
-            const resultContainer = document.getElementById('result');
-            const sentimentResult = document.getElementById('sentimentResult');
-            const confidenceResult = document.getElementById('confidenceResult');
-            const assistantResponse = document.getElementById('assistantResponse');
-
-            const response = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/generateResponse', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userDiary })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                sentimentResult.textContent = data.sentiment;
-                confidenceResult.textContent = data.confidence;
-                assistantResponse.textContent = data.assistantResponse;
-            } else {
-                sentimentResult.textContent = '오류';
-                confidenceResult.textContent = '오류';
-                assistantResponse.textContent = '오류';
-            }
-
-            resultContainer.style.display = 'block';
-        }
-    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>
