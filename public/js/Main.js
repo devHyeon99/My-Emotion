@@ -20,26 +20,19 @@ function getUser() {
             console.log(email, name);
             const userInfoElement = document.getElementById('user-info');
             userInfoElement.textContent = `사용자: ${name}, 이메일: ${email}`;
+        },
+        fail: function (error) {
+            alert('카카오 로그인에 실패했습니다. 관리자에게 문의하세요.' + JSON.stringify(error));
         }
     });
+    console.log("dd?")
 }
 
+// 카카오 계정 함께 로그아웃
 function logout() {
     const client_id = 'b976cc8aaac258149aeeae2150956032'; // 카카오 개발자 사이트에서 발급한 클라이언트 ID
-    const logoutRedirectURI = 'https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/index.html'; // 로그아웃 후 리디렉션될 서비스 로그아웃 URL
-
-    // 카카오 로그아웃 API 호출
-    fetch(`https://kauth.kakao.com/oauth/logout?client_id=${client_id}&logout_redirect_uri=${logoutRedirectURI}`, {
-        method: 'GET'
-    })
-        .then(response => response.text())
-        .then(data => {
-            window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=${client_id}&logout_redirect_uri=${logoutRedirectURI}`;
-            console.log(data); // 로그아웃 성공 시, 서버에서 반환한 응답 데이터
-        })
-        .catch(error => {
-            console.error(error);
-        });
+    const logoutRedirectURI = 'https://my-emotion.netlify.app/'; // 로그아웃 후 리디렉션될 서비스 로그아웃 URL
+    window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=${client_id}&logout_redirect_uri=${logoutRedirectURI}`;
 }
 
 // GPT, Clova API 응답 부분
