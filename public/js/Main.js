@@ -49,6 +49,8 @@ async function generateResponse() {
     const DiaryWriteView = document.getElementById('DiaryWriteView');
     const DiaryWriteView2 = document.getElementById('DiaryWriteView2');
 
+    showLoadingScreen(); // 로딩창 표시
+
     const response = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/generateResponse', {
         method: 'POST',
         headers: {
@@ -59,6 +61,8 @@ async function generateResponse() {
 
     if (response.ok) {
         const data = await response.json();
+
+        hideLoadingScreen(); // 로딩창 제거
         DiaryWrite.style.backgroundColor = '#DCF8C6';
         DiaryWrite.style.boxShadow = '2px 2px 20px rgba(0, 0, 0, 0.1)';
         DiaryWrite.textContent = userDiary;
@@ -70,6 +74,7 @@ async function generateResponse() {
         DiaryWriteView2.textContent = data.confidence;
         document.getElementById('userDiary').value = '';
     } else {
+        hideLoadingScreen(); // 로딩창 제거
         DiaryWriteView.textContent = '오류';
     }
 }
@@ -91,4 +96,15 @@ function changeTab(tabId, button) {
 
     // 클릭된 탭 콘텐츠 표시
     document.querySelector(`#${tabId}`).classList.add('show', 'active');
+}
+
+// 로딩 컨트롤 부분
+// API 요청 전 로딩 화면 표시
+function showLoadingScreen() {
+    document.querySelector('.loading-screen').style.display = 'block';
+}
+
+// API 요청 후 로딩 화면 숨김
+function hideLoadingScreen() {
+    document.querySelector('.loading-screen').style.display = 'none';
 }
