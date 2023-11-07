@@ -56,12 +56,24 @@ router.post('/register', (req, res) => {
 router.post('/saveDiary', (req, res) => {
     const { email, date, content, answer, emotion } = req.body;
 
-    db.query('INSERT INTO Diary (email, date, content, answer, emotion) VALUES (?, ?, ?, ?, ?)', [email, date, content, answer, emotion], (error, results, fields) => {
+    // 이미 작성한 일기가 있는지 확인
+    db.query('SELECT * FROM Diary WHERE email = ? AND date = ?', [email, date], (error, results, fields) => {
         if (error) {
             console.error(error);
             res.status(500).send('일기 저장에 실패했습니다.');
+        } else if (results.length > 0) {
+            // 이미 작성한 일기가 있는 경우
+            res.status(400).send('이미 오늘 일기를 작성했습니다.');
         } else {
-            res.json({ message: '일기 저장 성공' });
+            // 이미 작성한 일기가 없는 경우, 새로운 일기를 저장
+            db.query('INSERT INTO Diary (email, date, content, answer, emotion) VALUES (?, ?, ?, ?, ?)', [email, date, content, answer, emotion], (error, results, fields) => {
+                if (error) {
+                    console.error(error);
+                    res.status(500).send('일기 저장에 실패했습니다.');
+                } else {
+                    res.json({ message: '일기 저장 성공' });
+                }
+            });
         }
     });
 });

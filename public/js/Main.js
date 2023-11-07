@@ -66,14 +66,15 @@ async function generateResponse() {
     if (response.ok) {
         const data = await response.json();
 
-        const currentDate = new Date(); 
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString().split('T')[0]; // 2023-11-07 형식으로 변환
         const content = userDiary;
         const answer = data.assistantResponse;
         const emotion = data.confidence;
 
         const diaryData = {
             email,
-            date: currentDate.toISOString(), // ISO 형식으로 현재 날짜를 변환
+            date: formattedDate,
             content,
             answer,
             emotion
@@ -100,6 +101,9 @@ async function generateResponse() {
             DiaryWriteView2.style.boxShadow = '2px 2px 20px rgba(0, 0, 0, 0.1)';
             DiaryWriteView2.textContent = data.confidence;
             document.getElementById('userDiary').value = '';
+        } else if (saveDiaryResponse.status === 400) {
+            // 이미 일기를 작성한 경우
+            openModal("알림", "오늘 일기를 이미 작성하셨습니다.");
         } else {
             hideLoadingScreen(); // 로딩창 제거
             DiaryWriteView.textContent = '오류';
