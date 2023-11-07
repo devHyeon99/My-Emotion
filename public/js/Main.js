@@ -66,17 +66,44 @@ async function generateResponse() {
     if (response.ok) {
         const data = await response.json();
 
-        hideLoadingScreen(); // 로딩창 제거
-        DiaryWrite.style.backgroundColor = '#DCF8C6';
-        DiaryWrite.style.boxShadow = '2px 2px 20px rgba(0, 0, 0, 0.1)';
-        DiaryWrite.textContent = userDiary;
-        DiaryWriteView.style.backgroundColor = '#E5E5EA';
-        DiaryWriteView.style.boxShadow = '2px 2px 20px rgba(0, 0, 0, 0.1)';
-        DiaryWriteView.textContent = data.assistantResponse;
-        DiaryWriteView2.style.backgroundColor = '#E5E5EA';
-        DiaryWriteView2.style.boxShadow = '2px 2px 20px rgba(0, 0, 0, 0.1)';
-        DiaryWriteView2.textContent = data.confidence;
-        document.getElementById('userDiary').value = '';
+        const currentDate = new Date(); 
+        const content = userDiary;
+        const answer = data.assistantResponse;
+        const emotion = data.confidence;
+
+        const diaryData = {
+            email,
+            date: currentDate.toISOString(), // ISO 형식으로 현재 날짜를 변환
+            content,
+            answer,
+            emotion
+        };
+
+        // 데이터베이스에 저장하기 위한 API 엔드포인트 호출
+        const saveDiaryResponse = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/saveDiary', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(diaryData)
+        });
+
+        if (saveDiaryResponse.ok) {
+            hideLoadingScreen(); // 로딩창 제거
+            DiaryWrite.style.backgroundColor = '#DCF8C6';
+            DiaryWrite.style.boxShadow = '2px 2px 20px rgba(0, 0, 0, 0.1)';
+            DiaryWrite.textContent = userDiary;
+            DiaryWriteView.style.backgroundColor = '#E5E5EA';
+            DiaryWriteView.style.boxShadow = '2px 2px 20px rgba(0, 0, 0, 0.1)';
+            DiaryWriteView.textContent = data.assistantResponse;
+            DiaryWriteView2.style.backgroundColor = '#E5E5EA';
+            DiaryWriteView2.style.boxShadow = '2px 2px 20px rgba(0, 0, 0, 0.1)';
+            DiaryWriteView2.textContent = data.confidence;
+            document.getElementById('userDiary').value = '';
+        } else {
+            hideLoadingScreen(); // 로딩창 제거
+            DiaryWriteView.textContent = '오류';
+        }
     } else {
         hideLoadingScreen(); // 로딩창 제거
         DiaryWriteView.textContent = '오류';

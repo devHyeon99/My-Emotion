@@ -52,4 +52,18 @@ router.post('/register', (req, res) => {
     });
 });
 
+// 일기 저장
+router.post('/saveDiary', (req, res) => {
+    const { email, date, content, answer, emotion } = req.body;
+
+    db.query('INSERT INTO Diary (email, date, content, answer, emotion) VALUES (?, ?, ?, ?, ?)', [email, date, content, answer, emotion], (error, results, fields) => {
+        if (error) {
+            console.error(error);
+            res.status(500).send('일기 저장에 실패했습니다.');
+        } else {
+            res.json({ message: '일기 저장 성공' });
+        }
+    });
+});
+
 module.exports = router;
