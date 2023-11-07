@@ -4,9 +4,22 @@
 
 .black-bg {
     background-color: white;
-    min-height: 90vh;
     border-radius: 10px;
     box-shadow: 2px 2px 20px rgba(0, 0, 0, .3);
+}
+
+/* 데스크톱 환경에 대한 스타일 */
+@media (min-width: 768px) {
+    .black-bg {
+        min-height: 100vh; /* 데스크톱 환경에서 적절한 높이 설정 */
+    }
+}
+
+/* 모바일 환경에 대한 스타일 */
+@media (max-width: 767px) {
+    .black-bg {
+        min-height: 75vh; /* 모바일 환경에서 적절한 높이 설정 */
+    }
 }
 
 .nav-link {
