@@ -3,6 +3,17 @@ document.addEventListener('DOMContentLoaded', function () {
     getUser();
 });
 
+// 페이지 로드시와 해시 변경 시 함수 호출
+window.addEventListener('load', function () {
+    // 페이지 로드 시 호출
+    checkHash();
+});
+
+window.addEventListener('hashchange', function () {
+    // 해시 변경 시 호출
+    checkHash();
+});
+
 // 로그인한 카카오 정보 Main 페이지에서 불러옴.
 Kakao.init('7168560f2aefd9e7c731e481723fcf25');
 var email = "";
@@ -19,7 +30,7 @@ function getUser() {
 
             console.log(email, name);
             const userInfoElement = document.getElementById('user-info');
-            userInfoElement.textContent = `사용자: ${name}, 이메일: ${email}`;
+            userInfoElement.innerHTML = `닉네임: ${name}<br>이메일: ${email}`;
         },
         fail: function (error) {
             const modal = document.getElementById('dynamicModal');
@@ -157,4 +168,46 @@ function openModal(title, body) {
     modalBody.textContent = body;
 
     modal.show();
+}
+
+// 메뉴 해시 변경때 마다 데이터 뿌리기 위한 부분
+function checkHash() {
+    // 현재 해시 가져오기 (예: '#menu2')
+    const currentHash = window.location.hash;
+
+    // 메뉴2 해시인 경우 함수 호출
+    if (currentHash === '#menu2') {
+        // menu2 활성화 시 실행할 함수 호출
+        activateMenu2();
+    }
+}
+
+function activateMenu2() {
+    console.log('menu2가 활성화되었습니다.');
+    fetch('/diaryList')
+        .then((response) => response.json())
+        .then((diaryList) => {
+            const listGroup = document.querySelector('.list-group');
+
+            // 기존 리스트 삭제
+            listGroup.innerHTML = '';
+
+            // 다이어리 목록을 리스트 그룹에 추가
+            diaryList.forEach((diary) => {
+                const listItem = document.createElement('a');
+                listItem.classList.add('list-group-item', 'list-group-item-action');
+                listItem.innerHTML = `
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">${diary.date}</h5>
+                            <small>3 days ago</small>
+                        </div>
+                        <p class="mb-1">${diary.content}</p>
+                    `;
+                listGroup.appendChild(listItem);
+            });
+        })
+        .catch((error) => {
+            // 오류 처리
+            console.error('다이어리 목록을 가져오는 데 실패했습니다.', error);
+        });
 }

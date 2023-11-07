@@ -20,6 +20,9 @@
     .black-bg {
         min-height: 100dvh; /* 모바일 환경에서 적절한 높이 설정 */
     }
+    .mypage-mobile {
+        margin-bottom: 10px;
+    }
 }
 
 .nav-link {
@@ -122,4 +125,11 @@
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* 마이페이지 박스 부분 */
+#user-box {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.2);
 }
