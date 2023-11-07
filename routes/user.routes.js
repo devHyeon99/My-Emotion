@@ -78,4 +78,16 @@ router.post('/saveDiary', (req, res) => {
     });
 });
 
+// 서버에서 다이어리 목록을 가져오는 엔드포인트
+router.get('/diaryList', (req, res) => {
+    // 데이터베이스에서 사용자의 다이어리 목록을 가져오는 쿼리를 실행
+    // 결과를 JSON 형식으로 반환
+    const diaryList = [
+        { date: '2023-11-01', content: '다이어리 내용 1' },
+        { date: '2023-11-02', content: '다이어리 내용 2' },
+        // 다른 다이어리 항목들
+    ];
+    res.json(diaryList);
+});
+
 module.exports = router;
