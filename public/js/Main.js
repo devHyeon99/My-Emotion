@@ -22,16 +22,22 @@ function getUser() {
             userInfoElement.textContent = `사용자: ${name}, 이메일: ${email}`;
         },
         fail: function (error) {
-            alert('카카오 로그인에 실패했습니다. 관리자에게 문의하세요.' + JSON.stringify(error));
+            const modal = document.getElementById('dynamicModal');
+            openModal("로그인 필요", "로그인 페이지로 이동합니다.");
+            // 모달의 'hidden.bs.modal' 이벤트 처리
+            modal.addEventListener('hidden.bs.modal', function () {
+                // 모달이 닫힌 후에 페이지 이동
+                window.location.href = './index.html';
+            });
         }
     });
-    console.log("dd?")
 }
 
 // 카카오 계정 함께 로그아웃
 function logout() {
     const client_id = 'b976cc8aaac258149aeeae2150956032'; // 카카오 개발자 사이트에서 발급한 클라이언트 ID
     const logoutRedirectURI = 'https://my-emotion.netlify.app/'; // 로그아웃 후 리디렉션될 서비스 로그아웃 URL
+    localStorage.clear();
     window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=${client_id}&logout_redirect_uri=${logoutRedirectURI}`;
 }
 
@@ -41,6 +47,11 @@ async function generateResponse() {
     const DiaryWrite = document.getElementById('DiaryWrite');
     const DiaryWriteView = document.getElementById('DiaryWriteView');
     const DiaryWriteView2 = document.getElementById('DiaryWriteView2');
+
+    if (userDiary == "") {
+        openModal("알림", "일기 작성을 완료 후 시도하시길 바랍니다.");
+        return;
+    }
 
     showLoadingScreen(); // 로딩창 표시
 
@@ -100,4 +111,17 @@ function showLoadingScreen() {
 // API 요청 후 로딩 화면 숨김
 function hideLoadingScreen() {
     document.querySelector('.loading-screen').style.display = 'none';
+}
+
+// 모달 열기 부분 (이 함수 컴포넌트를 통해서 계속 활용해서 사용)
+function openModal(title, body) {
+    const modalElement = document.getElementById('dynamicModal');
+    const modal = new bootstrap.Modal(modalElement)
+    const modalTitle = document.getElementById('dynamicModalLabel');
+    const modalBody = document.getElementById('dynamicModalBody');
+
+    modalTitle.textContent = title;
+    modalBody.textContent = body;
+
+    modal.show();
 }

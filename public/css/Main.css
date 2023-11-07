@@ -79,7 +79,7 @@
     background-color: lightgray;
     color: black;
     border: none;
-    border-radius: 10px;
+    border-radius: 10px !important;
     box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.2);
 }
 
@@ -102,7 +102,7 @@
     border-radius: 50%;
     width: 40px;
     height: 40px;
-    margin: 100px auto;
+    margin: 325px auto;
     animation: spin 2s linear infinite;
 }
 
