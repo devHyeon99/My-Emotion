@@ -66,8 +66,9 @@ async function generateResponse() {
     if (response.ok) {
         const data = await response.json();
 
-        const currentDate = new Date();
-        const formattedDate = currentDate.toISOString().split('T')[0]; // 2023-11-07 형식으로 변환
+        const offset = 1000 * 60 * 60 * 9
+        const koreaNow = new Date((new Date()).getTime() + offset)
+        const formattedDate = koreaNow.toISOString().split('T')[0];
         const content = userDiary;
         const answer = data.assistantResponse;
         const emotion = data.confidence;
@@ -103,6 +104,7 @@ async function generateResponse() {
             document.getElementById('userDiary').value = '';
         } else if (saveDiaryResponse.status === 400) {
             // 이미 일기를 작성한 경우
+            hideLoadingScreen(); // 로딩창 제거
             openModal("알림", "오늘 일기를 이미 작성하셨습니다.");
         } else {
             hideLoadingScreen(); // 로딩창 제거
