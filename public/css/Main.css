@@ -18,7 +18,7 @@
 /* 모바일 환경에 대한 스타일 */
 @media (max-width: 767px) {
     .black-bg {
-        min-height: 75vh; /* 모바일 환경에서 적절한 높이 설정 */
+        min-height: 85vh; /* 모바일 환경에서 적절한 높이 설정 */
     }
 }
 
