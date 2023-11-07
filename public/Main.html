@@ -101,6 +101,18 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
         integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
         crossorigin="anonymous"></script>
+    <script>
+        function changeTab(tabId) {
+            // 탭을 클릭했을 때 스크롤을 화면 상단으로 이동
+            window.scrollTo(0, 0);
+
+            // Bootstrap의 탭 전환 함수 호출
+            $('.nav-link').removeClass('active');
+            $('#' + tabId).addClass('active');
+            $('.tab-pane').removeClass('active');
+            $('#' + tabId).addClass('active');
+        }
+    </script>
 </body>
 
 </html>
