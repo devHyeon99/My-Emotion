@@ -181,14 +181,75 @@ function checkHash() {
     // 메뉴2 해시인 경우 함수 호출
     if (currentHash === '#menu2') {
         // menu2 활성화 시 실행할 함수 호출
-        activateMenu2();
+        fetchDiaryList();
     }
 }
 
 // 메뉴 활성화시 데이터 추가하는 부분
-function activateMenu2() {
-    console.log('menu2가 활성화되었습니다.' + email);
+const itemsPerPage = 6; // 한 페이지당 표시될 아이템 수
+let currentPage = 1; // 현재 페이지 설정
 
+function renderDiaryList(diaryList) {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const slicedDiaries = diaryList.slice(startIndex, endIndex);
+
+    const listGroup = document.getElementById('diaryListContainer');
+    listGroup.innerHTML = ''; // 기존 리스트 삭제
+
+    slicedDiaries.forEach((diary) => {
+        const listItem = document.createElement('a');
+        listItem.classList.add('list-group-item', 'list-group-item-action');
+
+        // 현재 날짜와 일기 쓴 날짜 차이 계산해서 사용자에게 알려줌
+        const offset = 1000 * 60 * 60 * 9;
+        const koreaNow = new Date((new Date()).getTime() + offset);
+        const formattedDate = koreaNow.toISOString().split('T')[0];
+        const currentDate = new Date(formattedDate);
+        const diaryDate = new Date(diary.date);
+        const timeDifference = Math.floor((currentDate - diaryDate) / (1000 * 60 * 60 * 24));
+
+        listItem.innerHTML = `
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">${diary.date}</h5>
+                <small>${timeDifference} days ago</small>
+            </div>
+            <p class="mb-1 text-start">${diary.content}</p>
+        `;
+        listGroup.appendChild(listItem);
+    });
+}
+
+// 페이지 네이션 동적 추가 부분
+function renderPagination(totalPages) {
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = ''; // 기존 페이지네이션 삭제
+
+    for (let i = 1; i <= totalPages; i++) {
+        const pageItem = document.createElement('li');
+        pageItem.classList.add('page-item');
+        const pageLink = document.createElement('a');
+        pageLink.classList.add('page-link');
+        pageLink.href = '#';
+        pageLink.textContent = i;
+        pageLink.id = `page${i}`;
+        pageLink.addEventListener('click', () => changePage(i));
+        pageItem.appendChild(pageLink);
+        pagination.appendChild(pageItem);
+    }
+
+    // 현재 페이지에 해당하는 페이지네이션에 'active' 클래스 추가
+    const currentPageLink = document.getElementById(`page${currentPage}`);
+    currentPageLink.classList.add('active');
+}
+
+function changePage(page) {
+    currentPage = page;
+    fetchDiaryList();
+}
+
+// 서버에서 다이어리 목록 가져오는 부분.
+function fetchDiaryList() {
     const data = {
         email: email
     };
@@ -202,33 +263,46 @@ function activateMenu2() {
     })
         .then((response) => response.json())
         .then((diaryList) => {
-            const listGroup = document.querySelector('.list-group');
+            const totalPages = Math.ceil(diaryList.length / itemsPerPage);
+            renderDiaryList(diaryList);
+            renderPagination(totalPages);
+        })
+        .catch((error) => {
+            console.error('다이어리 목록을 가져오는 데 실패했습니다.', error);
+        });
+}
 
-            // 기존 리스트 삭제
-            listGroup.innerHTML = '';
+// 다이어리 검색 함수
+function diarysearch() {
+    const content = document.getElementById("diarycontent").value;
 
-            // 다이어리 목록을 리스트 그룹에 추가
-            diaryList.forEach((diary) => {
-                const listItem = document.createElement('a');
-                listItem.classList.add('list-group-item', 'list-group-item-action');
+    const data = {
+        email: email,
+        content: content
+    };
 
-                const currentDate = new Date();
-                const diaryDate = new Date(diary.date);
-                const timeDifference = Math.floor((currentDate - diaryDate) / (1000 * 60 * 60 * 24));
-
-
-                listItem.innerHTML = `
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">${diary.date}</h5>
-                    <small>${timeDifference} days ago</small>
-                </div>
-                <p class="mb-1 text-start">${diary.content}</p>
-            `;
-                listGroup.appendChild(listItem);
-            });
+    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/diaryList', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then((response) => response.json())
+        .then((diaryList) => {
+            if (diaryList.length === 0) {
+                // 검색된 일기가 없을 때 기존 목록을 보여줌
+                openModal("알림", "검색된 일기가 없습니다.");
+                fetchDiaryList();
+            } else {
+                const totalPages = Math.ceil(diaryList.length / itemsPerPage);
+                renderDiaryList(diaryList);
+                renderPagination(totalPages);
+            }
         })
         .catch((error) => {
             // 오류 처리
             console.error('다이어리 목록을 가져오는 데 실패했습니다.', error);
         });
 }
+

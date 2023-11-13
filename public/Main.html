@@ -29,7 +29,7 @@
                         <a href="#menu1" data-toggle="tab" class="nav-link" onclick="changeTab('menu1', this)">일기작성</a>
                     </div>
                     <div class="col-3">
-                        <a href="#menu2" data-toggle="tab" class="nav-link" onclick="changeTab('menu2', this)">일기보기</a>
+                        <a href="#menu2" data-toggle="tab" class="nav-link" onclick="changeTab('menu2', this)">일기목록</a>
                     </div>
                     <div class="col-3">
                         <a href="#menu3" data-toggle="tab" class="nav-link" onclick="changeTab('menu3', this)">커뮤니티</a>
@@ -58,14 +58,21 @@
                     </div>
 
                     <div id="menu2" class="tab-pane">
-                        <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action" aria-current="true">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">일기 날짜가 들어가는 곳</h5>
-                                    <small>3 days ago</small>
-                                </div>
-                                <p class="mb-1">일기 내용이 들어가는 곳</p>
-                            </a>
+                        <div class="d-flex justify-content-center" style="margin-bottom: 15px; white-space: nowrap;">
+                            <input class="form-control search" id="diarycontent" type="text"
+                                placeholder="검색할 일기의 내용을 입력해주세요." aria-label="Search">
+                            <button class="btn btn-outline-secondary" type="button" style="width: 15%;"
+                                onclick="diarysearch()">검 색</button>
+                        </div>
+                        <div class="list-group" id="diaryListContainer">
+                            <!-- 일기 목록 여기에 동적으로 추가 -->
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination" id="pagination">
+                                    <!-- 페이지네이션 여기에 동적으로 추가 -->
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                     <div id="menu3" class="tab-pane">
