@@ -90,6 +90,9 @@ router.post('/diaryList', (req, res) => {
         query += ' AND content LIKE ?';
     }
 
+    // 최신 날짜순으로 정렬
+    query += ' ORDER BY date DESC';
+
     db.query(query, [userEmail, `%${searchContent}%`], (err, results) => {
         if (err) {
             console.error('다이어리 목록을 가져오는 데 실패했습니다.', err);
@@ -100,6 +103,5 @@ router.post('/diaryList', (req, res) => {
         }
     });
 });
-
 
 module.exports = router;
