@@ -81,10 +81,16 @@ router.post('/saveDiary', (req, res) => {
 // 서버에서 다이어리 목록을 가져오는 엔드포인트
 router.post('/diaryList', (req, res) => {
     const userEmail = req.body.email;
+    const searchContent = req.body.content; // 추가: 검색어 받기
 
-    // 해당 이메일에 해당하는 다이어리 목록을 최신 날짜순으로 정렬하여 검색
-    const query = 'SELECT date, content FROM Diary WHERE email = ? ORDER BY date DESC';
-    db.query(query, [userEmail], (err, results) => {
+    let query = 'SELECT * FROM Diary WHERE email = ?';
+
+    // 만약 검색어가 제공되면 WHERE 절에 추가
+    if (searchContent) {
+        query += ' AND content LIKE ?';
+    }
+
+    db.query(query, [userEmail, `%${searchContent}%`], (err, results) => {
         if (err) {
             console.error('다이어리 목록을 가져오는 데 실패했습니다.', err);
             res.status(500).json({ error: 'Internal Server Error' });
@@ -94,5 +100,6 @@ router.post('/diaryList', (req, res) => {
         }
     });
 });
+
 
 module.exports = router;
