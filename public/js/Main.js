@@ -1,5 +1,8 @@
 // DOMContentLoaded 될때 getUser() 함수를 호출함.
 document.addEventListener('DOMContentLoaded', function () {
+    if (window.location.hash !== '#menu4') {
+        window.location.hash = '#menu4';
+    }
     getUser();
 });
 
@@ -182,9 +185,21 @@ function checkHash() {
     }
 }
 
+// 메뉴 활성화시 데이터 추가하는 부분
 function activateMenu2() {
-    console.log('menu2가 활성화되었습니다.');
-    fetch('/diaryList')
+    console.log('menu2가 활성화되었습니다.' + email);
+
+    const data = {
+        email: email
+    };
+
+    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/diaryList', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
         .then((response) => response.json())
         .then((diaryList) => {
             const listGroup = document.querySelector('.list-group');
@@ -196,13 +211,19 @@ function activateMenu2() {
             diaryList.forEach((diary) => {
                 const listItem = document.createElement('a');
                 listItem.classList.add('list-group-item', 'list-group-item-action');
+
+                const currentDate = new Date();
+                const diaryDate = new Date(diary.date);
+                const timeDifference = Math.floor((currentDate - diaryDate) / (1000 * 60 * 60 * 24));
+
+
                 listItem.innerHTML = `
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">${diary.date}</h5>
-                            <small>3 days ago</small>
-                        </div>
-                        <p class="mb-1">${diary.content}</p>
-                    `;
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${diary.date}</h5>
+                    <small>${timeDifference} days ago</small>
+                </div>
+                <p class="mb-1 text-start">${diary.content}</p>
+            `;
                 listGroup.appendChild(listItem);
             });
         })

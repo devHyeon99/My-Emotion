@@ -79,15 +79,20 @@ router.post('/saveDiary', (req, res) => {
 });
 
 // 서버에서 다이어리 목록을 가져오는 엔드포인트
-router.get('/diaryList', (req, res) => {
-    // 데이터베이스에서 사용자의 다이어리 목록을 가져오는 쿼리를 실행
-    // 결과를 JSON 형식으로 반환
-    const diaryList = [
-        { date: '2023-11-01', content: '다이어리 내용 1' },
-        { date: '2023-11-02', content: '다이어리 내용 2' },
-        // 다른 다이어리 항목들
-    ];
-    res.json(diaryList);
+router.post('/diaryList', (req, res) => {
+    const userEmail = req.body.email;
+
+    // 해당 이메일에 해당하는 다이어리 목록을 최신 날짜순으로 정렬하여 검색
+    const query = 'SELECT date, content FROM Diary WHERE email = ? ORDER BY date DESC';
+    db.query(query, [userEmail], (err, results) => {
+        if (err) {
+            console.error('다이어리 목록을 가져오는 데 실패했습니다.', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            // 결과를 JSON 형식으로 반환
+            res.json(results);
+        }
+    });
 });
 
 module.exports = router;
