@@ -340,7 +340,7 @@ function renderPagination(totalPages) {
 }
 
 function openDiaryModal(date, content, answer, emotion) {
-    const modalElement = document.getElementById('dynamicModal');
+    const modalElement = document.getElementById('dynamicModal2');
     const modal = new bootstrap.Modal(modalElement);
     const modalContent = `
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
