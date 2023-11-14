@@ -185,10 +185,93 @@ function checkHash() {
     }
 }
 
-// 메뉴 활성화시 데이터 추가하는 부분
 const itemsPerPage = 6; // 한 페이지당 표시될 아이템 수
 let currentPage = 1; // 현재 페이지 설정
+let currentSearchResult = []; // 검색 결과를 저장할 변수
 
+// 서버에서 다이어리 목록 가져오는 부분.
+function fetchDiaryList() {
+    let diaryList = currentSearchResult; // 검색된 목록이 있으면 해당 목록을 사용
+
+    if (diaryList.length === 0) {
+        // 검색된 목록이 없을 경우 전체 목록을 가져옴
+        const data = {
+            email: email,
+            content: '' // 검색어를 빈 문자열로 초기화하여 전체 목록 요청
+        };
+
+        fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/diaryList', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then((response) => response.json())
+            .then((result) => {
+                diaryList = result;
+                renderDiaryList(diaryList);
+                const totalPages = Math.ceil(diaryList.length / itemsPerPage);
+                renderPagination(totalPages);
+            })
+            .catch((error) => {
+                console.error('다이어리 목록을 가져오는 데 실패했습니다.', error);
+            });
+    } else {
+        // 검색된 목록을 사용하여 페이지 렌더링
+        renderDiaryList(diaryList);
+        const totalPages = Math.ceil(diaryList.length / itemsPerPage);
+        renderPagination(totalPages);
+    }
+}
+
+// 다이어리 검색 함수
+function diarysearch() {
+    const content = document.getElementById("diarycontent").value;
+
+    const data = {
+        email: email,
+        content: content // 검색어를 포함하여 서버에 전송
+    };
+
+    currentPage = 1; // 검색 시 페이지를 1페이지로 설정
+
+    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/diaryList', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then((response) => response.json())
+        .then((diaryList) => {
+            if (diaryList.length === 0) {
+                openModal("알림", "검색된 일기가 없습니다.");
+                window.location.hash = '#1'; // 검색 결과가 없을 때 해시 값을 1로 설정
+                currentSearchResult = [];
+                fetchDiaryList(); // 검색 결과가 없으므로 전체 다이어리 목록을 보여줌
+            } else {
+                currentSearchResult = diaryList; // 검색된 결과를 저장
+                renderDiaryList(diaryList);
+                const totalPages = Math.ceil(diaryList.length / itemsPerPage);
+                renderPagination(totalPages);
+                window.location.hash = '#1'; // 검색 시 항상 해시 값을 1로 설정
+            }
+        })
+        .catch((error) => {
+            console.error('다이어리 목록을 가져오는 데 실패했습니다.', error);
+        });
+}
+
+
+
+// 페이지 네이션 함수
+function changePage(page) {
+    currentPage = page;
+    fetchDiaryList(); // 페이지를 변경할 때 목록을 다시 가져오도록 수정
+}
+
+// 메뉴 활성화시 데이터 추가하는 부분
 function renderDiaryList(diaryList) {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -216,6 +299,12 @@ function renderDiaryList(diaryList) {
             </div>
             <p class="mb-1 text-start">${diary.content}</p>
         `;
+
+        // 클릭 이벤트에서 모달 열기 함수 호출
+        listItem.addEventListener('click', () => {
+            openDiaryModal(diary.date, diary.content, diary.answer, diary.emotion);
+        });
+
         listGroup.appendChild(listItem);
     });
 }
@@ -223,14 +312,20 @@ function renderDiaryList(diaryList) {
 // 페이지 네이션 동적 추가 부분
 function renderPagination(totalPages) {
     const pagination = document.getElementById('pagination');
-    pagination.innerHTML = ''; // 기존 페이지네이션 삭제
+
+    if (!pagination) {
+        console.error('pagination 요소를 찾을 수 없습니다.');
+        return;
+    }
+
+    pagination.innerHTML = '';
 
     for (let i = 1; i <= totalPages; i++) {
         const pageItem = document.createElement('li');
         pageItem.classList.add('page-item');
         const pageLink = document.createElement('a');
         pageLink.classList.add('page-link');
-        pageLink.href = '#';
+        pageLink.href = `#${i}`; // 페이지 번호에 따라 각각의 고유한 href 설정
         pageLink.textContent = i;
         pageLink.id = `page${i}`;
         pageLink.addEventListener('click', () => changePage(i));
@@ -238,71 +333,31 @@ function renderPagination(totalPages) {
         pagination.appendChild(pageItem);
     }
 
-    // 현재 페이지에 해당하는 페이지네이션에 'active' 클래스 추가
     const currentPageLink = document.getElementById(`page${currentPage}`);
-    currentPageLink.classList.add('active');
+    if (currentPageLink) {
+        currentPageLink.classList.add('active');
+    }
 }
 
-function changePage(page) {
-    currentPage = page;
-    fetchDiaryList();
+function openDiaryModal(date, content, answer, emotion) {
+    const modalElement = document.getElementById('dynamicModal');
+    const modal = new bootstrap.Modal(modalElement);
+    const modalContent = `
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">${date}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong style="font-size: 1.2em;">작성일기<br></strong> ${content}</p>
+                    <p><strong style="font-size: 1.2em;">일기답변<br></strong> ${answer}</p>
+                    <p><strong style="font-size: 1.2em;">나의감정<br></strong> ${emotion}</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    modalElement.innerHTML = modalContent;
+    modal.show();
 }
-
-// 서버에서 다이어리 목록 가져오는 부분.
-function fetchDiaryList() {
-    const data = {
-        email: email
-    };
-
-    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/diaryList', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-        .then((response) => response.json())
-        .then((diaryList) => {
-            const totalPages = Math.ceil(diaryList.length / itemsPerPage);
-            renderDiaryList(diaryList);
-            renderPagination(totalPages);
-        })
-        .catch((error) => {
-            console.error('다이어리 목록을 가져오는 데 실패했습니다.', error);
-        });
-}
-
-// 다이어리 검색 함수
-function diarysearch() {
-    const content = document.getElementById("diarycontent").value;
-
-    const data = {
-        email: email,
-        content: content
-    };
-
-    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/diaryList', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-        .then((response) => response.json())
-        .then((diaryList) => {
-            if (diaryList.length === 0) {
-                // 검색된 일기가 없을 때 기존 목록을 보여줌
-                openModal("알림", "검색된 일기가 없습니다.");
-                fetchDiaryList();
-            } else {
-                const totalPages = Math.ceil(diaryList.length / itemsPerPage);
-                renderDiaryList(diaryList);
-                renderPagination(totalPages);
-            }
-        })
-        .catch((error) => {
-            // 오류 처리
-            console.error('다이어리 목록을 가져오는 데 실패했습니다.', error);
-        });
-}
-
