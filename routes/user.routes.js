@@ -83,7 +83,7 @@ router.post('/diaryList', (req, res) => {
     const userEmail = req.body.email;
     const searchContent = req.body.content; // 추가: 검색어 받기
 
-    let query = 'SELECT * FROM Diary WHERE email = ?';
+    let query = 'SELECT *, answer, emotion FROM Diary WHERE email = ?';
 
     // 만약 검색어가 제공되면 WHERE 절에 추가
     if (searchContent) {
