@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
         window.location.hash = '#menu4';
     }
     getUser();
+    renderCalendar();
 });
 
 // 페이지 로드시와 해시 변경 시 함수 호출
@@ -361,3 +362,79 @@ function openDiaryModal(date, content, answer, emotion) {
     modalElement.innerHTML = modalContent;
     modal.show();
 }
+
+const date = new Date();
+let currYear = date.getFullYear(),
+    currMonth = date.getMonth();
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+    'September', 'October', 'November', 'December',];
+const daysTag = document.querySelector('.days');
+const currentDate = document.querySelector('.current-date');
+currentDate.innerHTML = `${months[currMonth]} ${currYear}`;
+const leftBtn = document.querySelector('.material-icons:nth-of-type(1)');
+const rightBtn = document.querySelector('.material-icons:nth-of-type(2)');
+
+leftBtn.addEventListener('click', showPrevMonth);
+rightBtn.addEventListener('click', showNextMonth);
+
+function showPrevMonth() {
+    currMonth--;
+    if (currMonth < 0) {
+        currMonth = 11;
+        currYear--;
+    }
+    renderCalendar();
+}
+
+function showNextMonth() {
+    currMonth++;
+    if (currMonth > 11) {
+        currMonth = 0;
+        currYear++;
+    }
+    renderCalendar();
+}
+
+const renderCalendar = () => {
+    currentDate.innerHTML = `${months[currMonth]} ${currYear}`;
+    let lastDateOfMonth = new Date(currYear, currMonth + 1, 0).getDate();
+    let firstDayOfMonth = new Date(currYear, currMonth, 1).getDay();
+    let lastDayOfMonth = new Date(currYear, currMonth, lastDateOfMonth).getDay();
+    let lastDateOfLastMonth = new Date(currYear, currMonth, 0).getDate();
+    let liTag = '';
+
+    for (let i = firstDayOfMonth - 1; i >= 0; i--) {
+        liTag += `<li class="inactive">${lastDateOfLastMonth - i}</li>`;
+    }
+
+    for (let i = 1; i <= lastDateOfMonth; i++) {
+        let isToday =
+            i === date.getDate() &&
+            currMonth === new Date().getMonth() &&
+            currYear === new Date().getFullYear()
+                ? 'active'
+                : '';
+        liTag += `<li class="${isToday}">${i}</li>`;
+    }
+
+    for (let i = 1; i < 7 - lastDayOfMonth; i++) {
+        liTag += `<li class="inactive">${i}</li>`;
+    }
+
+    daysTag.innerHTML = liTag;
+
+    const days = document.querySelectorAll('.days li');
+
+    // days를 순회하면서 클릭 이벤트를 추가합니다.
+    days.forEach(day => {
+        day.addEventListener('click', () => {
+            // 이전에 active 클래스가 있는 요소를 찾아서 모두 제거합니다.
+            days.forEach(d => {
+                d.classList.remove('active');
+            });
+
+            // 클릭된 요소에 active 클래스를 추가합니다.
+            day.classList.add('active');
+        });
+    });
+};
