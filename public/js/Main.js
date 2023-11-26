@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     getUser();
     renderCalendar();
+    TimeDropdowns();
 });
 
 // 페이지 로드시와 해시 변경 시 함수 호출
@@ -410,8 +411,8 @@ const renderCalendar = () => {
     for (let i = 1; i <= lastDateOfMonth; i++) {
         let isToday =
             i === date.getDate() &&
-            currMonth === new Date().getMonth() &&
-            currYear === new Date().getFullYear()
+                currMonth === new Date().getMonth() &&
+                currYear === new Date().getFullYear()
                 ? 'active'
                 : '';
         liTag += `<li class="${isToday}">${i}</li>`;
@@ -425,16 +426,80 @@ const renderCalendar = () => {
 
     const days = document.querySelectorAll('.days li');
 
-    // days를 순회하면서 클릭 이벤트를 추가합니다.
+    // days를 순회하면서 클릭 이벤트를 추가
     days.forEach(day => {
         day.addEventListener('click', () => {
-            // 이전에 active 클래스가 있는 요소를 찾아서 모두 제거합니다.
+            // 이전에 active 클래스가 있는 요소를 찾아서 모두 제거
             days.forEach(d => {
                 d.classList.remove('active');
             });
 
-            // 클릭된 요소에 active 클래스를 추가합니다.
+            // 클릭된 요소에 active 클래스를 추가
             day.classList.add('active');
+
+            // 클릭한 날짜 정보 가져오기
+            getDaily(parseInt(day.textContent));
         });
     });
 };
+
+// 일정관리 함수 부분
+
+function dailyadd() {
+    const modalElement = document.getElementById('exampleModal');
+    const modal = new bootstrap.Modal(modalElement)
+    modal.show();
+}
+
+function TimeDropdowns() {
+    var startTimeSelect = document.getElementById("startTime");
+    var endTimeSelect = document.getElementById("endTime");
+
+    startTimeSelect.innerHTML = '<option value="">00:00</option>';
+    endTimeSelect.innerHTML = '<option value="">00:00</option>';
+
+    for (var i = 0; i <= 23; i++) {
+        var hour = ('0' + i).slice(-2); // 시간을 2자리 형식으로 변환
+        startTimeSelect.innerHTML += '<option value="' + hour + ':00">' + hour + ':00</option>';
+    }
+
+    for (var j = 1; j <= 24; j++) {
+        var hour = ('0' + j).slice(-2); // 시간을 2자리 형식으로 변환
+        endTimeSelect.innerHTML += '<option value="' + hour + ':00">' + hour + ':00</option>';
+    }
+}
+
+function getDaily(date) {
+    const modalElement = document.getElementById('exampleModal2');
+    const modal = new bootstrap.Modal(modalElement)
+    const modalTitle = document.getElementById('exampleModalLabel2');
+    const modalbody = document.getElementById('diaryCehck');
+
+    const strDate = `${currYear}-${(currMonth + 1).toString().padStart(2, '0')}-${date.toString().padStart(2, '0')}`;
+    modalTitle.textContent = strDate;
+    fetch('/checkDiary', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email, date: strDate }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                // 해당 날짜에 일기가 존재하는 경우
+                modalbody.textContent = "일기 작성 여부 : O"
+                console.log('해당 날짜의 일기가 있습니다.');
+            } else {
+                // 해당 날짜에 일기가 존재하지 않는 경우
+                modalbody.textContent = "일기 작성 여부 : X"
+                console.log('해당 날짜의 일기가 없습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('서버 요청 중 에러 발생:', error);
+            // 에러 처리
+        });
+
+    modal.show();
+}
