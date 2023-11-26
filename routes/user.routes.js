@@ -78,6 +78,27 @@ router.post('/saveDiary', (req, res) => {
     });
 });
 
+// 일기체크
+router.post('/checkDiary', (req, res) => {
+    const userEmail = req.body.email;
+    const checkDate = req.body.date;
+
+    const query = 'SELECT * FROM Diary WHERE email = ? AND date = ?';
+
+    db.query(query, [userEmail, checkDate], (err, results) => {
+        if (err) {
+            console.error('일기 확인 중 오류 발생:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            if (results.length > 0) {
+                res.json({ exists: true }); // 일기가 존재하는 경우
+            } else {
+                res.json({ exists: false }); // 일기가 존재하지 않는 경우
+            }
+        }
+    });
+});
+
 // 서버에서 다이어리 목록을 가져오는 엔드포인트
 router.post('/diaryList', (req, res) => {
     const userEmail = req.body.email;
