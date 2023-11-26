@@ -341,6 +341,7 @@ function renderPagination(totalPages) {
     }
 }
 
+// 일기목록 리스트 클릭스 활성화 되는 모달 
 function openDiaryModal(date, content, answer, emotion) {
     const modalElement = document.getElementById('dynamicModal2');
     const modal = new bootstrap.Modal(modalElement);
@@ -364,6 +365,7 @@ function openDiaryModal(date, content, answer, emotion) {
     modal.show();
 }
 
+// 캘린더 관련 함수들
 const date = new Date();
 let currYear = date.getFullYear(),
     currMonth = date.getMonth();
@@ -428,35 +430,38 @@ const renderCalendar = () => {
 
     // days를 순회하면서 클릭 이벤트를 추가
     days.forEach(day => {
-        day.addEventListener('click', () => {
-            // 이전에 active 클래스가 있는 요소를 찾아서 모두 제거
-            days.forEach(d => {
-                d.classList.remove('active');
+        if (!day.classList.contains('inactive')) {
+            day.addEventListener('click', () => {
+                // 이전에 active 클래스가 있는 요소를 찾아서 모두 제거
+                days.forEach(d => {
+                    d.classList.remove('active');
+                });
+
+                // 클릭된 요소에 active 클래스를 추가
+                day.classList.add('active');
+
+                // 클릭한 날짜 정보 가져오기
+                getDaily(parseInt(day.textContent));
             });
-
-            // 클릭된 요소에 active 클래스를 추가
-            day.classList.add('active');
-
-            // 클릭한 날짜 정보 가져오기
-            getDaily(parseInt(day.textContent));
-        });
+        }
     });
 };
 
 // 일정관리 함수 부분
-
+// 일정작성하는 모달
 function dailyadd() {
     const modalElement = document.getElementById('exampleModal');
     const modal = new bootstrap.Modal(modalElement)
     modal.show();
 }
 
+// 시간 관련 드롭박스 변환
 function TimeDropdowns() {
     var startTimeSelect = document.getElementById("startTime");
     var endTimeSelect = document.getElementById("endTime");
 
-    startTimeSelect.innerHTML = '<option value="">00:00</option>';
-    endTimeSelect.innerHTML = '<option value="">00:00</option>';
+    startTimeSelect.innerHTML = '<option value="">시간 선택</option>';
+    endTimeSelect.innerHTML = '<option value="">시간 선택</option>';
 
     for (var i = 0; i <= 23; i++) {
         var hour = ('0' + i).slice(-2); // 시간을 2자리 형식으로 변환
@@ -469,6 +474,7 @@ function TimeDropdowns() {
     }
 }
 
+// 날짜 클릭시에 일기 작성여부, 일정 작성목록 불러와서 모달 띄움.
 function getDaily(date) {
     const modalElement = document.getElementById('exampleModal2');
     const modal = new bootstrap.Modal(modalElement)
@@ -477,7 +483,13 @@ function getDaily(date) {
 
     const strDate = `${currYear}-${(currMonth + 1).toString().padStart(2, '0')}-${date.toString().padStart(2, '0')}`;
     modalTitle.textContent = strDate;
-    fetch('/checkDiary', {
+    fetchDiarycheck(modalbody, strDate);
+    fetchgetSchedules(strDate);
+    modal.show();
+}
+
+function fetchDiarycheck(modalbody, strDate) {
+    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/checkDiary', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -500,6 +512,116 @@ function getDaily(date) {
             console.error('서버 요청 중 에러 발생:', error);
             // 에러 처리
         });
+}
 
-    modal.show();
+const tbody = document.querySelector('tbody');
+function fetchgetSchedules(strDate) {
+    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/getSchedules', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email, date: strDate }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.data && data.data.length > 0) {
+                // 서버로부터 일정 데이터를 받아왔고, 데이터가 있는 경우
+                addSchedulesToTable(data.data); // 테이블에 일정 데이터 추가
+            } else {
+                // 서버로부터 받은 데이터가 빈 배열인 경우 (일정이 없는 경우)
+                tbody.innerHTML = '<tr style="text-align: center;"><td colspan="4">일정이 없습니다.</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('서버 요청 중 에러 발생:', error);
+            // 에러 처리
+        });
+}
+
+// 서버에서 받은 일정 데이터를 기반으로 tbody에 각 일정을 추가
+function addSchedulesToTable(data) {
+    tbody.innerHTML = '';
+
+    // 서버로부터 받은 일정 데이터(data)를 순회하며 각 일정을 테이블에 추가
+    data.forEach((schedule, index) => {
+        const row = document.createElement('tr'); // 새로운 <tr> 엘리먼트 생성
+
+        // 일련번호 열 추가
+        const sequence = document.createElement('th');
+        sequence.setAttribute('scope', 'row');
+        sequence.textContent = index + 1;
+        row.appendChild(sequence);
+
+        // 시작 시간 열 추가
+        const startTime = document.createElement('td');
+        startTime.textContent = schedule.start;
+        row.appendChild(startTime);
+
+        // 종료 시간 열 추가
+        const endTime = document.createElement('td');
+        endTime.textContent = schedule.end;
+        row.appendChild(endTime);
+
+        // 일정 내용 열 추가
+        const content = document.createElement('td');
+        content.textContent = schedule.content;
+        row.appendChild(content);
+
+        // 테이블에 행 추가
+        tbody.appendChild(row);
+    });
+}
+
+// 일정 작성하는 함수
+function dailywritebtn() {
+    const scheduleDateInput = document.getElementById('scheduleDate');
+    const startTimeSelect = document.getElementById('startTime');
+    const endTimeSelect = document.getElementById('endTime');
+    const scheduleContentTextarea = document.getElementById('scheduleContent');
+    console.log(scheduleDateInput.value, startTimeSelect.value, endTimeSelect.value, scheduleContentTextarea.value)
+    if (scheduleDateInput.value == "" || startTimeSelect == "" ||
+        endTimeSelect.value == "" || scheduleContentTextarea.value == "") {
+        $('#exampleModal').modal('hide');
+        openModal("알림", "일정 작성에 빈칸이 있거나 시간이 중복되지 않게 작성해주세요.");
+        return
+    }
+    if (startTimeSelect.value == endTimeSelect.value) {
+        $('#exampleModal').modal('hide');
+        openModal("알림", "일정 시간 설정을 다시 확인 해주세요.");
+        return
+    }
+    const scheduleData = {
+        email: email,
+        date: scheduleDateInput.value,
+        startTime: startTimeSelect.value,
+        endTime: endTimeSelect.value,
+        content: scheduleContentTextarea.value
+    };
+    console.log(scheduleData);
+    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/createSchedule', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(scheduleData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('일정이 성공적으로 추가되었습니다.');
+                $('#exampleModal').modal('hide');
+                const toastElement = document.querySelector('#liveToast');
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+            } else {
+                console.log('일정이 추가되지 않았습니다.');
+                $('#exampleModal').modal('hide');
+                openModal("알림", "일정 시간 설정을 다시 확인 해주세요.");
+            }
+        })
+        .catch(error => {
+            console.error('일정 추가 중 에러 발생:', error);
+            // 에러 처리
+        });
 }
