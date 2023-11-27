@@ -54,7 +54,7 @@ router.post('/register', (req, res) => {
 
 // 일기 저장
 router.post('/saveDiary', (req, res) => {
-    const { email, date, content, answer, emotion } = req.body;
+    const { email, date, content, answer, positivity, negativity, neutral } = req.body;
 
     // 이미 작성한 일기가 있는지 확인
     db.query('SELECT * FROM Diary WHERE email = ? AND date = ?', [email, date], (error, results, fields) => {
@@ -66,14 +66,15 @@ router.post('/saveDiary', (req, res) => {
             res.status(400).send('이미 오늘 일기를 작성했습니다.');
         } else {
             // 이미 작성한 일기가 없는 경우, 새로운 일기를 저장
-            db.query('INSERT INTO Diary (email, date, content, answer, emotion) VALUES (?, ?, ?, ?, ?)', [email, date, content, answer, emotion], (error, results, fields) => {
-                if (error) {
-                    console.error(error);
-                    res.status(500).send('일기 저장에 실패했습니다.');
-                } else {
-                    res.json({ message: '일기 저장 성공' });
-                }
-            });
+            db.query('INSERT INTO Diary (email, date, content, answer, positivity, negativity, neutral) VALUES (?, ?, ?, ?, ?, ?, ?)'
+                , [email, date, content, answer, positivity, negativity, neutral], (error, results, fields) => {
+                    if (error) {
+                        console.error(error);
+                        res.status(500).send('일기 저장에 실패했습니다.');
+                    } else {
+                        res.json({ message: '일기 저장 성공' });
+                    }
+                });
         }
     });
 });
@@ -104,7 +105,7 @@ router.post('/diaryList', (req, res) => {
     const userEmail = req.body.email;
     const searchContent = req.body.content; // 추가: 검색어 받기
 
-    let query = 'SELECT *, answer, emotion FROM Diary WHERE email = ?';
+    let query = 'SELECT *, answer, positivity, negativity, neutral FROM Diary WHERE email = ?';
 
     // 만약 검색어가 제공되면 WHERE 절에 추가
     if (searchContent) {
@@ -198,6 +199,80 @@ router.post('/getSchedules', (req, res) => {
             res.json({ data: formattedResults }); // 데이터를 객체 안에 담아 보내기
         }
     });
+});
+
+
+router.post('/weekly-stats', async (req, res) => {
+    try {
+        const userEmail = req.body.email;
+        const selectedMonth = new Date(req.body.month); // 오늘 날짜를 가져옴
+        // 해당 월의 감정 데이터를 가져오는 쿼리 (Diary 테이블에서 해당 이메일의 감정 데이터를 가져옴) MONTH()를 이용하면 MM만 걸러서 date가져오는듯
+        const query = 'SELECT date, positivity, negativity, neutral FROM Diary WHERE email = ? AND MONTH(date) = MONTH(?)';
+
+        db.query(query, [userEmail, selectedMonth], (err, results) => {
+            if (err) {
+                console.error('감정 데이터를 가져오는 중 에러 발생:', err);
+                res.status(500).json({ error: 'Internal Server Error' });
+            } else if (results.length === 0) {
+                console.log("사용자가 작성하지 않은 달의 일기 통계를 불러옴.")
+                res.status(404).json({ error: 'No data available for the selected month' });
+            } else {
+                console.log("정상적으로 감정 데이터를 불러왔습니다.")
+                // 주차별로 감정 데이터 통계 계산
+                const weeklyStats = {};
+
+                results.forEach(entry => {
+                    const week = getWeekNumber(entry.date); // 주차 계산 함수를 통해 주차 구하기
+
+                    // 주차별로 데이터 누적
+                    if (!weeklyStats[week]) {
+                        weeklyStats[week] = {
+                            totalPositivity: 0,
+                            totalNegativity: 0,
+                            totalNeutral: 0,
+                            count: 0
+                        };
+                    }
+
+                    // 주차에 맞는 일 수 만큼 반복되어서 각각의 감정들 계산 누적됨.
+                    weeklyStats[week].totalPositivity += parseFloat(entry.positivity);
+                    weeklyStats[week].totalNegativity += parseFloat(entry.negativity);
+                    weeklyStats[week].totalNeutral += parseFloat(entry.neutral);
+                    weeklyStats[week].count += 1;
+                });
+
+                // 여기서 이제 각 주차별 평균값을 계산함.
+                const formattedWeeklyStats = {};
+                Object.keys(weeklyStats).forEach(week => {
+                    const avgPositivity = (weeklyStats[week].totalPositivity / weeklyStats[week].count).toFixed(2);
+                    const avgNegativity = (weeklyStats[week].totalNegativity / weeklyStats[week].count).toFixed(2);
+                    const avgNeutral = (weeklyStats[week].totalNeutral / weeklyStats[week].count).toFixed(2);
+
+                    formattedWeeklyStats[`Week ${week}`] = {
+                        avgPositivity,
+                        avgNegativity,
+                        avgNeutral
+                    };
+                });
+                res.json(formattedWeeklyStats);
+            }
+        });
+    } catch (err) {
+        res.status(500).send('Error occurred while processing request');
+    }
+
+    // 주차 계산하는 함수
+    function getWeekNumber(date) {
+        const currentDate = new Date(date);
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const firstDay = startOfMonth.getDay();
+        const daysToAdd = firstDay <= 4 ? 1 - firstDay : 8 - firstDay;
+
+        startOfMonth.setDate(startOfMonth.getDate() + daysToAdd);
+        const numberOfDays = Math.floor((currentDate - startOfMonth) / (24 * 3600 * 1000));
+
+        return Math.floor(numberOfDays / 7) + 1;
+    }
 });
 
 module.exports = router;
