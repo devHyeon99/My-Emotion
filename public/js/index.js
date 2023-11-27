@@ -68,6 +68,7 @@ function getInfo() {
                     }
                 })
                 .then(data => {
+                    window.location.href = "./Main.html"; // Main.html로 이동
                     console.log(data); // 서버에서 받은 응답 데이터 (로그인 또는 회원가입 결과)
                 })
                 .catch(error => {
