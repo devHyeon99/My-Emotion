@@ -42,7 +42,7 @@ router.post('/register', (req, res) => {
     const userData = req.body; // 클라이언트에서 보낸 데이터 (이메일, 이름)
 
     // 여기에서 userData에 있는 이메일과 이름을 데이터베이스에 추가하는 쿼리를 실행
-    db.query('INSERT INTO User (email, name) VALUES (?, ?)', [userData.email, userData.name], (error, results, fields) => {
+    db.query('INSERT INTO User (email, name, pairingvalue, pairingemail) VALUES (?, ?, ?, ?)', [userData.email, userData.name, 0, ""], (error, results, fields) => {
         if (error) {
             console.error(error);
             res.status(500).send('회원가입에 실패했습니다.');
@@ -52,6 +52,7 @@ router.post('/register', (req, res) => {
     });
 });
 
+////////// 일기관련 라우터들
 // 일기 저장
 router.post('/saveDiary', (req, res) => {
     const { email, date, content, answer, positivity, negativity, neutral } = req.body;
@@ -201,7 +202,7 @@ router.post('/getSchedules', (req, res) => {
     });
 });
 
-
+// 일기 감정 분석 통계
 router.post('/weekly-stats', async (req, res) => {
     try {
         const userEmail = req.body.email;
@@ -273,6 +274,73 @@ router.post('/weekly-stats', async (req, res) => {
 
         return Math.floor(numberOfDays / 7) + 1;
     }
+});
+
+// 페어링 관련 라우터들
+// 페어링 체크
+router.post('/checkPairing', (req, res) => {
+    const userEmail = req.body.email;
+
+    const query = 'SELECT * FROM User WHERE email = ?';
+
+    db.query(query, [userEmail], (err, results) => {
+        if (err) {
+            console.error('페어링 확인 중 오류 발생:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            if (results.length > 0) {
+                const pairingValue = results[0].pairingvalue === 0 ? 0 : 1;
+                if (pairingValue === 1) {
+                    const pairingEmail = results[0].pairingemail;
+
+                    const pairingQuery = 'SELECT name FROM User WHERE email = ?'; // 이름을 찾기 위한 새로운 쿼리
+                    db.query(pairingQuery, [pairingEmail], (error, pairingResults) => {
+                        if (error) {
+                            console.error('페어링 사용자 정보 확인 중 오류 발생:', error);
+                            res.status(500).json({ error: 'Internal Server Error' });
+                        } else {
+                            if (pairingResults.length > 0) {
+                                const pairingName = pairingResults[0].name;
+                                res.json({ pairingValue, pairingEmail, pairingName });
+                            } else {
+                                res.json({ pairingValue, pairingEmail });
+                            }
+                        }
+                    });
+                } else {
+                    res.json({ pairingValue });
+                }
+            } else {
+                res.status(404).json({ error: 'User not found' });
+            }
+        }
+    });
+});
+
+
+// 페어링 연결 라우터
+router.post('/pairing', (req, res) => {
+    const userEmail = req.body.email;
+    const pairingEmail = req.body.pairEmail;
+
+    const updateUserQuery = 'UPDATE User SET pairingvalue = 1, pairingemail = ? WHERE email = ?';
+    const updatePairQuery = 'UPDATE User SET pairingvalue = 1, pairingemail = ? WHERE email = ?';
+
+    db.query(updateUserQuery, [pairingEmail, userEmail], (err1, result1) => {
+        if (err1) {
+            console.error('페어링 업데이트 중 오류 발생:', err1);
+            res.status(500).json({ success: false });
+        } else {
+            db.query(updatePairQuery, [userEmail, pairingEmail], (err2, result2) => {
+                if (err2) {
+                    console.error('페어링 업데이트 중 오류 발생:', err2);
+                    res.status(500).json({ success: false });
+                } else {
+                    res.json({ success: true });
+                }
+            });
+        }
+    });
 });
 
 module.exports = router;

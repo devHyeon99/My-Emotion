@@ -60,9 +60,6 @@
                             <button class="btn btn-outline-secondary" type="button" id="button-addon2"
                                 onclick="generateResponse()">작성완료</button>
                         </div>
-                        <div>
-                            <span>글귀들 데이터 종합해서 슬라이드식으로 보여주게? 할까?</span>
-                        </div>
                     </div>
 
                     <div id="menu2" class="tab-pane">
@@ -126,7 +123,7 @@
                                 <h2 class="accordion-header" id="headingOne">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                        감정 분석 통계
+                                        나의 감정 통계
                                     </button>
                                 </h2>
                                 <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
@@ -140,7 +137,6 @@
                                                 <option value="1">선택</option>
                                             </select>
                                         </div>
-                                        <div id="weeklyStats"></div>
                                         <canvas id="doughnut-chart" width="800" height="450"></canvas>
                                     </div>
                                 </div>
@@ -148,15 +144,25 @@
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="headingTwo">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                        자녀 감정 통계
+                                        data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"
+                                        onclick="updateAccordionBody();">
+                                        페어 감정 통계
                                     </button>
                                 </h2>
                                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
                                     data-bs-parent="#accordionExample">
-                                    <div class="accordion-body">
-                                        준비중..
+                                    <div class="flex-container">
+                                        <div class="accordion-body" style="text-align: left; font-size: 14px; width: 80%;"></div>
+                                        <div class="select-container" style="width: 50% !important;">
+                                            <select class="dailySelect2" id="selectMonth2">
+                                                <option value="1">선택</option>
+                                            </select>
+                                            <select class="dailySelect2" id="selectWeek2">
+                                                <option value="1">선택</option>
+                                            </select>
+                                        </div>
                                     </div>
+                                    <canvas id="doughnut-chart2" width="800" height="450"></canvas>
                                 </div>
                             </div>
                             <div class="accordion-item">
@@ -185,6 +191,7 @@
     </div>
 
     <!-- 모달 정리 -->
+    <!-- 일반 알림창 모달 재활용해서 사용 -->
     <div class="modal fade" id="dynamicModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="dynamicModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -203,6 +210,7 @@
         </div>
     </div>
 
+    <!-- 일기 목록 모달 -->
     <div class="modal fade" id="dynamicModal2" aria-labelledby="dynamicModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -311,6 +319,51 @@
         </div>
     </div>
 
+    <!-- 페어리 등록 모달창 -->
+    <!-- Modal -->
+    <div class="modal fade" id="PairingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="PairingModalLabel">페어 등록</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="height: 110px; text-align: center;">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Email</span>
+                        <input type="email" id="pairingemail" placeholder="example@gmail.com" class="form-control"
+                            aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+                    </div>
+                    <span style="color: lightslategray;">페어링할 카카오 계정 이메일을 입력해주세요.</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="pairingRegister();">등록하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 재차 확인 하는 Modal -->
+    <div class="modal fade" id="oneMoreMdoal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">페어링</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    페어링을 진행 하시겠습니까?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">아니오</button>
+                    <button type="button" class="btn btn-primary" onclick="pairingStart();">예</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast 알림창 -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true"
@@ -325,7 +378,7 @@
                 <small>Now</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <div class="toast-body">
+            <div class="toast-body" id="toastbody">
                 일정 추가가 완료 되었습니다.
             </div>
         </div>

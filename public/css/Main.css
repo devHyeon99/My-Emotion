@@ -14,8 +14,9 @@
         min-height: 100vh;
         /* 데스크톱 환경에서 적절한 높이 설정 */
     }
-    .dailySelect{
-        width: 10%;
+
+    .dailySelect {
+        width: 15%;
     }
 }
 
@@ -31,7 +32,7 @@
     }
 
     .dailySelect {
-        width: 20%;
+        width: 25%;
     }
 }
 
@@ -278,11 +279,35 @@
 .select-container {
     display: flex;
     justify-content: flex-end;
-    align-items: center; /* 세로 가운데 정렬을 위해 필요한 경우 */
-    gap: 5px; /* 선택적으로 간격 조정 */
+    align-items: center;
+    /* 세로 가운데 정렬을 위해 필요한 경우 */
+    gap: 5px;
+    /* 선택적으로 간격 조정 */
 }
 
 .dailySelect {
     border: 1px solid #ccc;
     border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    /* 요소 사이의 간격을 동일하게 분배합니다 */
+    align-items: center;
+    /* 세로 방향 가운데 정렬합니다 */
+}
+
+.dailySelect2 {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 36px;
+    width: 100%;
+    margin-right: 10px;
+}
+
+.select-container2 {
+    margin-bottom: 35px;
+    margin-right: 10px;
 }

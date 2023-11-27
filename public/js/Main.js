@@ -634,7 +634,11 @@ function dailywritebtn() {
 }
 
 // 차트 업데이트 함수
-function updateChart(weekStats) {
+// 차트를 관리할 객체 생성
+const myDoughnutCharts = {};
+
+function updateChart(chartId, weekStats) {
+    console.log(weekStats);
     const chartData = {
         labels: ["긍정", "부정", "중립"],
         datasets: [{
@@ -644,15 +648,15 @@ function updateChart(weekStats) {
     };
 
     // 차트 요소 가져오기
-    const doughnutChartElement = document.getElementById('doughnut-chart');
-    document.getElementById('doughnut-chart').style.display = 'block';
+    const doughnutChartElement = document.getElementById(chartId);
+    doughnutChartElement.style.display = 'block';
 
     // 차트 초기화 또는 업데이트
-    if (window.myDoughnutChart) {
-        window.myDoughnutChart.data = chartData;
-        window.myDoughnutChart.update();
+    if (myDoughnutCharts[chartId]) {
+        myDoughnutCharts[chartId].data = chartData;
+        myDoughnutCharts[chartId].update();
     } else {
-        window.myDoughnutChart = new Chart(doughnutChartElement, {
+        myDoughnutCharts[chartId] = new Chart(doughnutChartElement, {
             type: 'doughnut',
             data: chartData,
             options: {
@@ -667,12 +671,16 @@ function updateChart(weekStats) {
 
 // 감정 통계 내는 함수 부분
 // 해당 월 주차별 통계 가져오는곳
-
 const selectWeek = document.getElementById('selectWeek');
+const selectWeek2 = document.getElementById('selectWeek2');
 selectWeek.addEventListener('change', () => {
     getWeeklyStats();
 });
+selectWeek2.addEventListener('change', () => {
+    PairgetWeeklyStats();
+});
 
+// 선택한 월, 주의 작성한 일기 데이터 감정을 서버에게 요청
 async function getWeeklyStats() {
     try {
         const selectedMonth = document.getElementById('selectMonth').value;
@@ -697,13 +705,41 @@ async function getWeeklyStats() {
         }
 
         const stats = await response.json();
-        const statsContainer = document.getElementById('weeklyStats');
         const weekStats = stats[`Week ${selectedWeek}`];
-        const weekDiv = document.createElement('div');
-        statsContainer.innerHTML = "";
-        weekDiv.innerHTML = `<strong style="color: gray;">Week ${selectedWeek}</strong><br>`;
-        statsContainer.appendChild(weekDiv);
-        updateChart(weekStats);
+        updateChart("doughnut-chart", weekStats);
+    } catch (error) {
+        openModal("에러", "불러올 데이터가 없거나 예기치 못한 오류가 발생했습니다. 관리자에게 문의 바랍니다.")
+        console.error('Error fetching weekly stats:', error);
+    }
+}
+
+async function PairgetWeeklyStats() {
+    console.log(pairEmail)
+    try {
+        const selectedMonth = document.getElementById('selectMonth2').value;
+        const selectedWeek = document.getElementById('selectWeek2').value;
+
+        const response = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/weekly-stats', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: pairEmail, month: selectedMonth, week: selectedWeek })
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                openModal("알림", "불러올 데이터가 없습니다.");
+                return
+            } else {
+                openModal("에러", "예기치 못한 오류가 발생했습니다. 관리자에게 문의 바랍니다.")
+                throw new Error('Failed to fetch weekly stats');
+            }
+        }
+
+        const stats = await response.json();
+        const weekStats = stats[`Week ${selectedWeek}`];
+        updateChart("doughnut-chart2", weekStats);
     } catch (error) {
         openModal("에러", "불러올 데이터가 없거나 예기치 못한 오류가 발생했습니다. 관리자에게 문의 바랍니다.")
         console.error('Error fetching weekly stats:', error);
@@ -734,38 +770,173 @@ function updateWeekDropdown(month) {
     const weeksInMonth = calculateWeeksInMonth(month); // 해당 월의 주차 수 계산
 
     const selectWeek = document.getElementById('selectWeek');
-    selectWeek.innerHTML = ''; // 기존 옵션 초기화
+    const selectWeek2 = document.getElementById('selectWeek2');
 
-    // "선택" 옵션 추가
-    const defaultOption = document.createElement('option');
-    defaultOption.value = '0'; // 또는 비어 있는 값을 사용할 수 있습니다.
-    defaultOption.textContent = '선택';
-    selectWeek.appendChild(defaultOption);
+    const updateDropdown = (selectElement) => {
+        selectElement.innerHTML = ''; // 기존 옵션 초기화
 
-    // 주차 옵션 추가
-    for (let i = 1; i <= weeksInMonth; i++) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = `${i}주차`;
-        selectWeek.appendChild(option);
-    }
+        // "선택" 옵션 추가
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '0'; // 또는 비어 있는 값을 사용할 수 있습니다.
+        defaultOption.textContent = '선택';
+        selectElement.appendChild(defaultOption);
+
+        // 주차 옵션 추가
+        for (let i = 1; i <= weeksInMonth; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `${i}주차`;
+            selectElement.appendChild(option);
+        }
+    };
+
+    updateDropdown(selectWeek);
+    updateDropdown(selectWeek2);
 }
 
 
 // 월 선택 드롭다운 메뉴 생성
 function populateMonthDropdown() {
-    const selectMonth = document.getElementById('selectMonth');
     const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
 
-    months.forEach((month, index) => {
-        const option = document.createElement('option');
-        option.value = index + 1; // 1부터 시작하는 월로 설정
-        option.textContent = month;
-        selectMonth.appendChild(option);
-    });
+    const populateDropdown = (selectElement) => {
+        months.forEach((month, index) => {
+            const option = document.createElement('option');
+            option.value = index + 1; // 1부터 시작하는 월로 설정
+            option.textContent = month;
+            selectElement.appendChild(option);
+        });
 
-    selectMonth.addEventListener('change', (event) => {
-        const selectedMonth = event.target.value;
-        updateWeekDropdown(selectedMonth);
-    });
+        selectElement.addEventListener('change', (event) => {
+            const selectedMonth = event.target.value;
+            updateWeekDropdown(selectedMonth);
+        });
+    };
+
+    const selectMonth = document.getElementById('selectMonth');
+    const selectMonth2 = document.getElementById('selectMonth2');
+
+    populateDropdown(selectMonth);
+    populateDropdown(selectMonth2);
+}
+
+
+// 페어링 관련 구현 부분
+// 페어 통계 관리하는 부분
+const collapseTwo = document.getElementById('collapseTwo');
+const accordionBody = collapseTwo.querySelector('.accordion-body');
+var pairEmail = "";
+
+async function updateAccordionBody() {
+    try {
+        const response = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/checkPairing', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        if (data.pairingValue === 1) {
+            pairEmail = data.pairingEmail;
+            accordionBody.innerHTML = `<strong>[ 페어 정보 ]</strong> <br>닉네임: ${data.pairingName} <br>이메일: ${pairEmail}`;
+        } else if (data.pairingValue === 0) {
+            accordionBody.innerHTML = '<button type="button" class="btn btn-outline-primary" ' +
+                'onclick="pairingModal();">페어링</button>';
+        }
+    } catch (error) {
+        console.error('Error updating accordion body:', error);
+    }
+}
+
+function pairingModal() {
+    const modalElement = document.getElementById('PairingModal');
+    const modal = new bootstrap.Modal(modalElement)
+
+    modal.show();
+}
+
+function pairingRegister() {
+    const modalElement = document.getElementById('oneMoreMdoal');
+    const modal = new bootstrap.Modal(modalElement)
+    const pairingemail = document.getElementById('pairingemail').value;
+    pairEmail = document.getElementById('pairingemail').value;
+
+    if (email === pairingemail) {
+        $('#PairingModal').modal('hide');
+        openModal("알림", "자기 자신을 페어링할 수 없습니다.");
+        return
+    }
+
+    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/checkPairing', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: pairingemail }) // userEmail은 사용자 이메일 값
+    })
+        .then(response => {
+            if (!response.ok) {
+                console.error('User Not Found');
+                $('#PairingModal').modal('hide');
+                openModal("알림", "입력하신 이메일의 유저가 존재하지 않습니다.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.pairingValue === 1) {
+                console.log("입력하신 이메일은 이미 다른 사용자와 페어링이 되어있습니다.")
+                $('#PairingModal').modal('hide');
+                openModal("알림", "입력하신 이메일은 이미 다른 사용자와 페어링이 되어있습니다.");
+            } else if (data.pairingValue === 0) {
+                console.log("입력하신 이메일은 다른 사용자와 페어링이 되어있지 않습니다.")
+                $('#PairingModal').modal('hide');
+                modal.show();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+function pairingStart() {
+    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/pairing', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, pairEmail })
+    })
+        .then(response => {
+            if (!response.ok) {
+                console.error('Network response was not ok');
+                return Promise.reject('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                console.log('페어링이 완료되었습니다.');
+                $('#oneMoreMdoal').modal('hide');
+                const toastElement = document.querySelector('#liveToast');
+                const toast = new bootstrap.Toast(toastElement);
+                const toastbody = document.getElementById('toastbody');
+                toastbody.textContent = "페어링이 완료되었습니다."
+
+                toast.show();
+            } else {
+                console.log('페어링에 실패했습니다.');
+                $('#oneMoreMdoal').modal('hide');
+                openModal("알림", "페어링이 실패하셨습니다. 관리자에게 문의 해주세요.")
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
