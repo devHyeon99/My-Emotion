@@ -79,9 +79,12 @@ router.post('/generateResponse', async (req, res) => {
 
         const assistantResponse = response.choices[0].message.content;
 
-        const formattedResult = `오늘의 일기 감정: ${sentimentKorean}\n비율: 부정: ${negativePercent}%, 긍정: ${positivePercent}%, 중립: ${neutralPercent}%`;
+        const formattedResult = `오늘의 일기 감정: ${sentimentKorean} 입니다. \n비율: 부정: ${negativePercent}%, 긍정: ${positivePercent}%, 중립: ${neutralPercent}%`;
 
-        res.json({ sentiment: sentimentKorean, confidence: formattedResult, assistantResponse });
+        res.json({
+            sentiment: sentimentKorean, confidence: formattedResult, positivity: positivePercent,
+            negativity: negativePercent, neutral: neutralPercent, assistantResponse
+        });
     } catch (error) {
         console.error('감정 분석 및 응답 생성 중 오류 발생:', error.message);
         res.status(500).json({ error: '감정 분석 및 응답 생성 중 오류 발생' });

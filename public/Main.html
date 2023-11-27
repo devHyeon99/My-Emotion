@@ -12,6 +12,7 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="./js/Main.js"></script>
     <title>My Emotion</title>
 </head>
@@ -58,6 +59,9 @@
                                 aria-label="Recipient's username" aria-describedby="button-addon2">
                             <button class="btn btn-outline-secondary" type="button" id="button-addon2"
                                 onclick="generateResponse()">작성완료</button>
+                        </div>
+                        <div>
+                            <span>글귀들 데이터 종합해서 슬라이드식으로 보여주게? 할까?</span>
                         </div>
                     </div>
 
@@ -114,6 +118,60 @@
                                 <div class="col-12 col-sm-5 mypage-mobile">
                                     <button type="button" class="btn btn-dark btn-sm" onclick="logout()">로그아웃</button>
                                     <button type="button" class="btn btn-danger btn-sm">회원탈퇴</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion" id="accordionExample" style="margin-top: 20px;">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingOne">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        감정 분석 통계
+                                    </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+                                    data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <div class="select-container">
+                                            <select class="dailySelect" id="selectMonth">
+                                                <option value="1">선택</option>
+                                            </select>
+                                            <select class="dailySelect" id="selectWeek">
+                                                <option value="1">선택</option>
+                                            </select>
+                                        </div>
+                                        <div id="weeklyStats"></div>
+                                        <canvas id="doughnut-chart" width="800" height="450"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingTwo">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        자녀 감정 통계
+                                    </button>
+                                </h2>
+                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                                    data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        준비중..
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingThree">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseThree" aria-expanded="false"
+                                        aria-controls="collapseThree">
+                                        준비중..
+                                    </button>
+                                </h2>
+                                <div id="collapseThree" class="accordion-collapse collapse"
+                                    aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        준비중..
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -253,8 +311,10 @@
         </div>
     </div>
 
+    <!-- Toast 알림창 -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+        <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true"
+            data-bs-delay="3000">
             <div class="toast-header">
                 <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
                     aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"

@@ -14,6 +14,9 @@
         min-height: 100vh;
         /* 데스크톱 환경에서 적절한 높이 설정 */
     }
+    .dailySelect{
+        width: 10%;
+    }
 }
 
 /* 모바일 환경에 대한 스타일 */
@@ -25,6 +28,10 @@
 
     .mypage-mobile {
         margin-bottom: 10px;
+    }
+
+    .dailySelect {
+        width: 20%;
     }
 }
 
@@ -51,11 +58,24 @@
     }
 }
 
+/* 모바일 환경에서 토스트창 하단 중앙 정렬 */
+@media (max-width: 767px) {
+
+    /* 모바일 화면일 때 */
+    #liveToastContainer {
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+        max-width: 90%;
+    }
+}
+
 /* 사용자에게 일기 작성에 대한 답변 보여주는 부분 */
 
 .result {
     width: 100%;
-    height: 400px;
+    height: 500px;
     padding: 10px;
     border: 0.8px solid lightgray;
     border-radius: 15px;
@@ -141,7 +161,8 @@
 .user-box {
     background-color: white;
     border-radius: 10px;
-    box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+    border: 0.8px solid lightgray;
 }
 
 /* 일기 목록 부분 */
@@ -241,4 +262,27 @@
     .form-group input[type="date"] {
         width: 70%;
     }
+}
+
+/* 아코디언 창 */
+.accordion {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+#doughnut-chart {
+    display: none;
+}
+
+.select-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; /* 세로 가운데 정렬을 위해 필요한 경우 */
+    gap: 5px; /* 선택적으로 간격 조정 */
+}
+
+.dailySelect {
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }

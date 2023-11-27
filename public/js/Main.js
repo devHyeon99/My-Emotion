@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     getUser();
     renderCalendar();
     TimeDropdowns();
+    populateMonthDropdown();
 });
 
 // 페이지 로드시와 해시 변경 시 함수 호출
@@ -87,14 +88,18 @@ async function generateResponse() {
         const formattedDate = koreaNow.toISOString().split('T')[0];
         const content = userDiary;
         const answer = data.assistantResponse;
-        const emotion = data.confidence;
+        const positivity = data.positivity;
+        const negativity = data.negativity;
+        const neutral = data.neutral;
 
         const diaryData = {
             email,
             date: formattedDate,
             content,
             answer,
-            emotion
+            positivity,
+            negativity,
+            neutral
         };
 
         // 데이터베이스에 저장하기 위한 API 엔드포인트 호출
@@ -304,7 +309,7 @@ function renderDiaryList(diaryList) {
 
         // 클릭 이벤트에서 모달 열기 함수 호출
         listItem.addEventListener('click', () => {
-            openDiaryModal(diary.date, diary.content, diary.answer, diary.emotion);
+            openDiaryModal(diary.date, diary.content, diary.answer, diary.positivity, diary.negativity, diary.neutral);
         });
 
         listGroup.appendChild(listItem);
@@ -342,7 +347,7 @@ function renderPagination(totalPages) {
 }
 
 // 일기목록 리스트 클릭스 활성화 되는 모달 
-function openDiaryModal(date, content, answer, emotion) {
+function openDiaryModal(date, content, answer, positivity, negativity, neutral) {
     const modalElement = document.getElementById('dynamicModal2');
     const modal = new bootstrap.Modal(modalElement);
     const modalContent = `
@@ -354,8 +359,10 @@ function openDiaryModal(date, content, answer, emotion) {
                 </div>
                 <div class="modal-body">
                     <p><strong style="font-size: 1.2em;">작성일기<br></strong> ${content}</p>
+                    <hr>
                     <p><strong style="font-size: 1.2em;">일기답변<br></strong> ${answer}</p>
-                    <p><strong style="font-size: 1.2em;">나의감정<br></strong> ${emotion}</p>
+                    <hr>
+                    <p><strong style="font-size: 1.2em;">일기감정<br></strong> 긍정: ${positivity} 부정: ${negativity} 중립: ${neutral}</p>
                 </div>
             </div>
         </div>
@@ -460,8 +467,8 @@ function TimeDropdowns() {
     var startTimeSelect = document.getElementById("startTime");
     var endTimeSelect = document.getElementById("endTime");
 
-    startTimeSelect.innerHTML = '<option value="">시간 선택</option>';
-    endTimeSelect.innerHTML = '<option value="">시간 선택</option>';
+    startTimeSelect.innerHTML = '<option value=""></option>';
+    endTimeSelect.innerHTML = '<option value=""></option>';
 
     for (var i = 0; i <= 23; i++) {
         var hour = ('0' + i).slice(-2); // 시간을 2자리 형식으로 변환
@@ -624,4 +631,141 @@ function dailywritebtn() {
             console.error('일정 추가 중 에러 발생:', error);
             // 에러 처리
         });
+}
+
+// 차트 업데이트 함수
+function updateChart(weekStats) {
+    const chartData = {
+        labels: ["긍정", "부정", "중립"],
+        datasets: [{
+            data: [weekStats.avgPositivity, weekStats.avgNegativity, weekStats.avgNeutral],
+            backgroundColor: ["#74bff7", "#ff695c", "#92f792"]
+        }]
+    };
+
+    // 차트 요소 가져오기
+    const doughnutChartElement = document.getElementById('doughnut-chart');
+    document.getElementById('doughnut-chart').style.display = 'block';
+
+    // 차트 초기화 또는 업데이트
+    if (window.myDoughnutChart) {
+        window.myDoughnutChart.data = chartData;
+        window.myDoughnutChart.update();
+    } else {
+        window.myDoughnutChart = new Chart(doughnutChartElement, {
+            type: 'doughnut',
+            data: chartData,
+            options: {
+                title: {
+                    display: true,
+                    text: 'Predicted world population (millions) in 2050'
+                }
+            }
+        });
+    }
+}
+
+// 감정 통계 내는 함수 부분
+// 해당 월 주차별 통계 가져오는곳
+
+const selectWeek = document.getElementById('selectWeek');
+selectWeek.addEventListener('change', () => {
+    getWeeklyStats();
+});
+
+async function getWeeklyStats() {
+    try {
+        const selectedMonth = document.getElementById('selectMonth').value;
+        const selectedWeek = document.getElementById('selectWeek').value;
+
+        const response = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/weekly-stats', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email, month: selectedMonth, week: selectedWeek })
+        });
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                openModal("알림", "불러올 데이터가 없습니다.");
+                return
+            } else {
+                openModal("에러", "예기치 못한 오류가 발생했습니다. 관리자에게 문의 바랍니다.")
+                throw new Error('Failed to fetch weekly stats');
+            }
+        }
+
+        const stats = await response.json();
+        const statsContainer = document.getElementById('weeklyStats');
+        const weekStats = stats[`Week ${selectedWeek}`];
+        const weekDiv = document.createElement('div');
+        statsContainer.innerHTML = "";
+        weekDiv.innerHTML = `<strong style="color: gray;">Week ${selectedWeek}</strong><br>`;
+        statsContainer.appendChild(weekDiv);
+        updateChart(weekStats);
+    } catch (error) {
+        openModal("에러", "불러올 데이터가 없거나 예기치 못한 오류가 발생했습니다. 관리자에게 문의 바랍니다.")
+        console.error('Error fetching weekly stats:', error);
+    }
+}
+
+// 주차 계산하는 함수
+function calculateWeeksInMonth(month) {
+    const currentYear = new Date().getFullYear(); // 현재 연도를 가져옴
+    const daysInMonth = new Date(currentYear, month, 0).getDate(); // 해당 월의 일 수
+    let weekNumber = 1; // 주차 번호 초기화
+    let dayOfWeek = new Date(currentYear, month - 1, 1).getDay(); // 해당 월의 첫 번째 날의 요일 (0: 일요일, 1: 월요일, ..., 6: 토요일)
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        // 해당 날짜가 다음 주로 넘어갈 때마다 주차 번호 증가
+        if (dayOfWeek === 0 && day !== 1) {
+            weekNumber++;
+        }
+        dayOfWeek = (dayOfWeek + 1) % 7; // 다음 날의 요일
+    }
+
+    return weekNumber;
+}
+
+
+// 월과 해당 월의 주차를 설정하는 드롭다운 메뉴 업데이트
+function updateWeekDropdown(month) {
+    const weeksInMonth = calculateWeeksInMonth(month); // 해당 월의 주차 수 계산
+
+    const selectWeek = document.getElementById('selectWeek');
+    selectWeek.innerHTML = ''; // 기존 옵션 초기화
+
+    // "선택" 옵션 추가
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '0'; // 또는 비어 있는 값을 사용할 수 있습니다.
+    defaultOption.textContent = '선택';
+    selectWeek.appendChild(defaultOption);
+
+    // 주차 옵션 추가
+    for (let i = 1; i <= weeksInMonth; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `${i}주차`;
+        selectWeek.appendChild(option);
+    }
+}
+
+
+// 월 선택 드롭다운 메뉴 생성
+function populateMonthDropdown() {
+    const selectMonth = document.getElementById('selectMonth');
+    const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+
+    months.forEach((month, index) => {
+        const option = document.createElement('option');
+        option.value = index + 1; // 1부터 시작하는 월로 설정
+        option.textContent = month;
+        selectMonth.appendChild(option);
+    });
+
+    selectMonth.addEventListener('change', (event) => {
+        const selectedMonth = event.target.value;
+        updateWeekDropdown(selectedMonth);
+    });
 }
