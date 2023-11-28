@@ -1,13 +1,26 @@
-// 로그인 헤더 이미지 애니메이션 처리
-const fadeEls = document.querySelectorAll('.header__img img')
-// 나타날 요소들을 하나씩 반복해서 처리!
-fadeEls.forEach(function (fadeEl, index) {
-    // 각 요소들을 순서대로(delay) 보여지게 함!
-    gsap.to(fadeEl, 1, {
-        delay: (index + 1) * .7,
-        opacity: 1
-    })
-})
+const fadeEls = document.querySelectorAll('.header__img img');
+const footerElements = document.querySelectorAll('.sigin__footer > *');
+
+gsap.to(fadeEls, {
+    duration: 1,
+    opacity: 1,
+    stagger: 0.5, // 헤더 이미지 나타나는 간격 조절
+    delay: 0.5, // 이미지들이 나타나기까지의 대기시간
+    onComplete: () => {
+        animateFooterElements();
+    }
+});
+
+function animateFooterElements() {
+    // 각 요소를 순회하며 opacity 애니메이션 적용
+    footerElements.forEach((element, index) => {
+        element.style.transition = `opacity 0.5s ease ${index * 0.3}s`;
+        setTimeout(() => {
+            element.style.opacity = '1';
+        }, 100);
+    });
+}
+
 
 // 카카오 로그인 부분 처리
 // 2. 카카오 초기화

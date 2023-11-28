@@ -53,3 +53,27 @@
 .signin__card .kakao-login {
     width: 200px;
 }
+
+.sigin__footer {
+    margin-top: 10%;
+}
+
+.sigin__footer h1,
+.sigin__footer div {
+    display: inline; /* 혹은 display: inline-block; */
+    margin: 0; /* 기본 마진 제거 */
+}
+
+.sigin__footer h1 {
+    opacity: 0;
+    font-weight: bold;
+    font-size: 38px;
+    color: black;
+}
+
+.sigin__footer div{
+    opacity: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #6e6e73;
+}
