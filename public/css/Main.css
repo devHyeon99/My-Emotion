@@ -18,6 +18,14 @@
     .dailySelect {
         width: 15%;
     }
+
+    .select-container2 {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 5px;
+        width: 30%;
+    }
 }
 
 /* 모바일 환경에 대한 스타일 */
@@ -33,6 +41,15 @@
 
     .dailySelect {
         width: 25%;
+    }
+
+    .select-container2 {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 30px;
+        width: 60%;
     }
 }
 
@@ -76,7 +93,8 @@
 
 .result {
     width: 100%;
-    height: 500px;
+    height: 500px; /* 초기 고정 높이 */
+    overflow-y: auto; /* 내용이 넘칠 때 스크롤이 생기도록 설정 */
     padding: 10px;
     border: 0.8px solid lightgray;
     border-radius: 15px;
@@ -275,14 +293,14 @@
 #doughnut-chart {
     display: none;
 }
-
+#doughnut-chart2 {
+    display: none;
+}
 .select-container {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    /* 세로 가운데 정렬을 위해 필요한 경우 */
     gap: 5px;
-    /* 선택적으로 간격 조정 */
 }
 
 .dailySelect {
@@ -304,10 +322,5 @@
     border-radius: 4px;
     margin-bottom: 36px;
     width: 100%;
-    margin-right: 10px;
-}
-
-.select-container2 {
-    margin-bottom: 35px;
-    margin-right: 10px;
+    margin-right: 5px;
 }

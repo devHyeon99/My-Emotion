@@ -672,12 +672,8 @@ function updateChart(chartId, weekStats) {
 // 감정 통계 내는 함수 부분
 // 해당 월 주차별 통계 가져오는곳
 const selectWeek = document.getElementById('selectWeek');
-const selectWeek2 = document.getElementById('selectWeek2');
 selectWeek.addEventListener('change', () => {
     getWeeklyStats();
-});
-selectWeek2.addEventListener('change', () => {
-    PairgetWeeklyStats();
 });
 
 // 선택한 월, 주의 작성한 일기 데이터 감정을 서버에게 요청
@@ -729,6 +725,7 @@ async function PairgetWeeklyStats() {
 
         if (!response.ok) {
             if (response.status === 404) {
+                console.log("몇번 띄우는거냐 이걸")
                 openModal("알림", "불러올 데이터가 없습니다.");
                 return
             } else {
@@ -814,20 +811,39 @@ function populateMonthDropdown() {
     };
 
     const selectMonth = document.getElementById('selectMonth');
-    const selectMonth2 = document.getElementById('selectMonth2');
 
     populateDropdown(selectMonth);
+}
+
+function populateMonthDropdown2() {
+    const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+
+    const populateDropdown = (selectElement) => {
+        months.forEach((month, index) => {
+            const option = document.createElement('option');
+            option.value = index + 1; // 1부터 시작하는 월로 설정
+            option.textContent = month;
+            selectElement.appendChild(option);
+        });
+
+        selectElement.addEventListener('change', (event) => {
+            const selectedMonth = event.target.value;
+            updateWeekDropdown(selectedMonth);
+        });
+    };
+
+    const selectMonth2 = document.getElementById('selectMonth2');
+
     populateDropdown(selectMonth2);
 }
 
-
 // 페어링 관련 구현 부분
 // 페어 통계 관리하는 부분
-const collapseTwo = document.getElementById('collapseTwo');
-const accordionBody = collapseTwo.querySelector('.accordion-body');
 var pairEmail = "";
 
 async function updateAccordionBody() {
+    const collapseTwo = document.getElementById('collapseTwo');
+    const accordionBody = collapseTwo.querySelector('.accordion-body');
     try {
         const response = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/checkPairing', {
             method: 'POST',
@@ -845,7 +861,29 @@ async function updateAccordionBody() {
 
         if (data.pairingValue === 1) {
             pairEmail = data.pairingEmail;
-            accordionBody.innerHTML = `<strong>[ 페어 정보 ]</strong> <br>닉네임: ${data.pairingName} <br>이메일: ${pairEmail}`;
+            accordionBody.innerHTML = `<strong>[ 페어 정보 ]</strong> <br>닉네임: ${data.pairingName} <br>이메일: ${pairEmail} <br>`;
+            // 이미 select-container2가 있는지 확인합니다.
+            const selectContainers = document.querySelectorAll('.select-container2');
+            // select-container2가 없는 경우에만 추가합니다.
+            if (selectContainers.length === 0) {
+                const selectContainer = document.createElement('div');
+                selectContainer.classList.add('select-container2');
+                selectContainer.innerHTML = `<select class="dailySelect2" id="selectMonth2">
+                <option value="1">선택</option>
+                </select>
+                <select class="dailySelect2" id="selectWeek2">
+                    <option value="1">선택</option>
+                </select>
+                `;
+                const flexContainer = document.querySelector('.flex-container');
+                flexContainer.appendChild(selectContainer);
+                populateMonthDropdown2();
+            }
+
+            const selectWeek2 = document.getElementById('selectWeek2');
+            selectWeek2.addEventListener('change', () => {
+                PairgetWeeklyStats();
+            });
         } else if (data.pairingValue === 0) {
             accordionBody.innerHTML = '<button type="button" class="btn btn-outline-primary" ' +
                 'onclick="pairingModal();">페어링</button>';
