@@ -65,7 +65,7 @@
                     <div id="menu2" class="tab-pane">
                         <div class="d-flex justify-content-center" style="margin-bottom: 15px; white-space: nowrap;">
                             <input class="form-control search" id="diarycontent" type="text"
-                                placeholder="검색할 일기의 내용을 입력해주세요." aria-label="Search">
+                                placeholder="작성한 일기의 내용 또는 날짜를 입력해주세요." aria-label="Search">
                             <button class="btn btn-outline-secondary" type="button" style="width: 15%;"
                                 onclick="diarysearch()">검 색</button>
                         </div>
@@ -152,7 +152,8 @@
                                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
                                     data-bs-parent="#accordionExample">
                                     <div class="flex-container">
-                                        <div class="accordion-body" style="text-align: left; font-size: 14px; width: 65%;"></div>
+                                        <div class="accordion-body"
+                                            style="text-align: left; font-size: 14px; width: 65%;"></div>
                                     </div>
                                     <canvas id="doughnut-chart2" width="800" height="450"></canvas>
                                 </div>
@@ -161,14 +162,105 @@
                                 <h2 class="accordion-header" id="headingThree">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#collapseThree" aria-expanded="false"
-                                        aria-controls="collapseThree">
-                                        준비중..
+                                        aria-controls="collapseThree" onclick="openLetter()">
+                                        페어 편지 작성
                                     </button>
                                 </h2>
                                 <div id="collapseThree" class="accordion-collapse collapse"
                                     aria-labelledby="headingThree" data-bs-parent="#accordionExample">
                                     <div class="accordion-body">
-                                        준비중..
+                                        <button type="button" class="btn btn-primary writeletter"
+                                            onclick="Writeletter()">편지작성</button>
+                                        <button type="button" class="btn btn-primary position-relative letterBox"
+                                            onclick="Loadletter()">
+                                            편지함
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                                style="display: none;">
+                                                <span class="visually-hidden">unread messages</span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingThree">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseFour" aria-expanded="false"
+                                        aria-controls="collapseFour" style="font-weight: bold; color: #1E90FF;">
+                                        도움말
+                                    </button>
+                                </h2>
+                                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
+                                    data-bs-parent="#accordionExample">
+                                    <div class="accordion-body" style="text-align: center;">
+                                        <div class="btn-group" role="group"
+                                            aria-label="Basic radio toggle button group">
+                                            <input type="radio" class="btn-check" name="btnradio" id="btnradio1"
+                                                autocomplete="off">
+                                            <label class="btn btn-outline-primary" for="btnradio1"
+                                                data-bs-toggle="collapse" href="#collapseExample" aria-expanded="false"
+                                                aria-controls="collapseExample">일기작성</label>
+
+                                            <input type="radio" class="btn-check" name="btnradio" id="btnradio2"
+                                                autocomplete="off">
+                                            <label class="btn btn-outline-primary" for="btnradio2"
+                                                data-bs-toggle="collapse" href="#collapseExample2" aria-expanded="false"
+                                                aria-controls="collapseExample2">일기목록</label>
+
+                                            <input type="radio" class="btn-check" name="btnradio" id="btnradio3"
+                                                autocomplete="off">
+                                            <label class="btn btn-outline-primary" for="btnradio3"
+                                                data-bs-toggle="collapse" href="#collapseExample3" aria-expanded="false"
+                                                aria-controls="collapseExample3">일정관리</label>
+
+                                            <input type="radio" class="btn-check" name="btnradio" id="btnradio4"
+                                                autocomplete="off">
+                                            <label class="btn btn-outline-primary" for="btnradio4"
+                                                data-bs-toggle="collapse" href="#collapseExample4" aria-expanded="false"
+                                                aria-controls="collapseExample4">나의정보</label>
+                                        </div>
+
+                                        <div class="textgroup" style="text-align: left; margin-top: 10px;">
+                                            <div class="collapse" id="collapseExample">
+                                                <div class="card card-body">
+                                                    <p>∙ 첫번째 탭인 '일기 작성하기'를 통해 하루의 일기를 작성할 수 있습니다. 작성한 일기는 하루에 한 번만 가능하며
+                                                        수정
+                                                        및 삭제가 불가능합니다.</p>
+                                                    <p>∙ 작성한 일기를 분석하여 답장 및 감정 분석을 제공해드립니다. 일기의 데이터는 사용자의 이용을 위한 저장 이외에는
+                                                        활용되지 않으며, 일기의 내용은 본인만 확인할 수 있습니다.</p>
+                                                </div>
+                                            </div>
+                                            <div class="collapse" id="collapseExample2">
+                                                <div class="card card-body">
+                                                    <p>∙ 두번째 탭인 '일기 목록'을 통해 작성한 일기를 열람하고 검색할 수 있습니다. 원하는 내용이나 날짜를 입력하여
+                                                        일기를
+                                                        찾아볼 수 있습니다.</p>
+                                                    <p>∙ 일기 목록은 최신 순으로 정렬되며 페이지 번호를 클릭하여 페이지를 이동할 수 있습니다.</p>
+                                                </div>
+                                            </div>
+                                            <div class="collapse" id="collapseExample3">
+                                                <div class="card card-body">
+                                                    <p>∙ 세번째 탭에서는 '일정 관리'를 통해 새로운 일정을 추가하고, 중복된 날짜에는 여러 개의 일정을 추가할 수
+                                                        없습니다.
+                                                    </p>
+                                                    <p>∙ 추가한 일정은 해당 날짜를 클릭하여 확인하고, 수정 및 삭제가 가능합니다. 또한, 해당 날짜에 작성한
+                                                        일기의 여부도 확인할 수 있습니다.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="collapse" id="collapseExample4">
+                                                <div class="card card-body">
+                                                    <p>∙ 네번째 탭인 '나의 정보'에서는 사용자 정보를 확인하고 관리할 수 있습니다.</p>
+                                                    <p>∙ '나의 감정 통계' 메뉴를 통해 작성한 일기를 1주 단위로 확인할 수 있습니다.</p>
+                                                    <p>∙ '페어 감정 통계' 메뉴를 통해 페어링된 상대의 일기 감정 통계를 1주 단위로 확인할 수 있습니다.</p>
+                                                    <p>∙ '페어 편지 작성' 메뉴를 통해 페어에게 편지를 쓸 수 있습니다. 편지를 보낸 후에는 수정 및 삭제가 불가능합니다.
+                                                    </p>
+                                                    <p>∙ 페어로부터 받은 편지는 '편지함'에서 확인할 수 있으며, 읽지 않은 편지의 개수는 뱃지로 표시됩니다.</p>
+                                                </div>
+
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -176,7 +268,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="col-12 col-md-3">
             </div>
         </div>
@@ -356,6 +447,88 @@
         </div>
     </div>
 
+    <!-- 편지 작성 모달 -->
+    <div class="modal fade" id="WriteModal" tabindex="-1" aria-labelledby="WriteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="WriteModalLabel">편지 작성</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="message-head" class="col-form-label">제목:</label>
+                            <input type="text" class="form-control" id="message-head">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message-text" class="col-form-label">내용:</label>
+                            <textarea class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" onclick="letterSend()">작성</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 편지함 모달 -->
+    <div class="modal fade" id="letterBoxModal" tabindex="-1" aria-labelledby="letterBoxModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="letterBoxModalLabel">편지함</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="letterBoxModalBody">
+                    <div id="letterList">
+                        <table class="table table-striped table-hover">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>00:00</td>
+                                    <td>00:00</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">2</th>
+                                    <td>00:00</td>
+                                    <td>00:00</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">3</th>
+                                    <td>00:00</td>
+                                    <td>00:00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 편지 상세 화면 모달 -->
+    <div class="modal fade" id="letterView" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="letterViewLabel">Modal title</h5>
+                </div>
+                <div class="modal-body" id="letterViewbody">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-primary" onclick="letterRead()">읽음</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast 알림창 -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true"
@@ -374,15 +547,50 @@
                 일정 추가가 완료 되었습니다.
             </div>
         </div>
-    </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
-        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
-        integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
-        crossorigin="anonymous"></script>
+        <div class="toast-container">
+            <div id="liveToast2" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true"
+                data-bs-delay="3000">
+                <div class="toast-header">
+                    <svg class="bd-placeholder-img rounded me-2" width="20" height="20"
+                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice"
+                        focusable="false" style="user-select: auto;">
+                        <rect width="100%" height="100%" fill="#808080" style="user-select: auto;"></rect>
+                    </svg>
+                    <strong class="me-auto">My Emotion</strong>
+                    <small>Now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" id="toastbody2">
+                    일정 추가가 완료 되었습니다.
+                </div>
+            </div>
+
+            <div id="liveToast3" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true"
+                data-bs-delay="3000">
+                <div class="toast-header">
+                    <svg class="bd-placeholder-img rounded me-2" width="20" height="20"
+                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice"
+                        focusable="false" style="user-select: auto;">
+                        <rect width="100%" height="100%" fill="#808080" style="user-select: auto;"></rect>
+                    </svg>
+                    <strong class="me-auto">My Emotion</strong>
+                    <small>Now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body" id="toastbody3">
+                    일정 추가가 완료 되었습니다.
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+            integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+            integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+            crossorigin="anonymous"></script>
 </body>
 
 </html>

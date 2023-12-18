@@ -60,6 +60,14 @@
     box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.1);
 }
 
+.nav-link:hover {
+    background-color: rgb(226, 226, 226);
+    border: 0.8px solid lightgray;
+    color: black;
+    border-radius: 10px;
+    box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.1);
+}
+
 .nav-link.active {
     background-color: rgb(226, 226, 226);
     color: black;
@@ -93,8 +101,10 @@
 
 .result {
     width: 100%;
-    height: 500px; /* 초기 고정 높이 */
-    overflow-y: auto; /* 내용이 넘칠 때 스크롤이 생기도록 설정 */
+    height: 500px;
+    /* 초기 고정 높이 */
+    overflow-y: auto;
+    /* 내용이 넘칠 때 스크롤이 생기도록 설정 */
     padding: 10px;
     border: 0.8px solid lightgray;
     border-radius: 15px;
@@ -293,9 +303,11 @@
 #doughnut-chart {
     display: none;
 }
+
 #doughnut-chart2 {
     display: none;
 }
+
 .select-container {
     display: flex;
     justify-content: flex-end;
@@ -323,4 +335,33 @@
     margin-bottom: 36px;
     width: 100%;
     margin-right: 5px;
+}
+
+.btn.writeletter {
+    margin-right: 10px;
+    border-radius: 10px;
+    border-color: lightgray;
+    background-color: whitesmoke;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+    color: black;
+}
+
+.btn.writeletter:hover{
+    border-color: gray;
+    background-color: gray;
+    color: black;
+}
+
+.btn.letterBox {
+    margin-left: 10px;
+    border-radius: 10px;
+    border-color: lightgray;
+    background-color: whitesmoke;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+    color: black;
+}
+.btn.letterBox:hover{
+    border-color: gray;
+    background-color: gray;
+    color: black;
 }

@@ -110,13 +110,13 @@ router.post('/diaryList', (req, res) => {
 
     // 만약 검색어가 제공되면 WHERE 절에 추가
     if (searchContent) {
-        query += ' AND content LIKE ?';
+        query += ' AND (content LIKE ? OR date LIKE ?)';
     }
 
     // 최신 날짜순으로 정렬
     query += ' ORDER BY date DESC';
 
-    db.query(query, [userEmail, `%${searchContent}%`], (err, results) => {
+    db.query(query, [userEmail, `%${searchContent}%`, `%${searchContent}%`], (err, results) => {
         if (err) {
             console.error('다이어리 목록을 가져오는 데 실패했습니다.', err);
             res.status(500).json({ error: 'Internal Server Error' });
@@ -342,5 +342,71 @@ router.post('/pairing', (req, res) => {
         }
     });
 });
+
+// 편지 작성 라우터
+router.post('/letterSend', (req, res) => {
+    const Data = req.body; // 클라이언트에서 보낸 데이터 (이메일, 이름)
+
+    // 여기에서 userData에 있는 이메일과 이름을 데이터베이스에 추가하는 쿼리를 실행
+    db.query('INSERT INTO Letter (email, head, content, `check`) VALUES (?, ?, ?, ?)', [Data.email, Data.head, Data.content, 0], (error, results, fields) => {
+        if (error) {
+            console.error(error);
+            res.status(500).send('편지 작성에 실패했습니다..');
+        } else {
+            res.json({ message: '편지 작성 완료..' });
+        }
+    });
+});
+
+// 편지 가져오는 라우터
+router.get('/letters/:email', (req, res) => {
+    const email = req.params.email;
+
+    // 해당 이메일에 맞는 편지들을 가져오는 쿼리를 실행
+    db.query('SELECT * FROM Letter WHERE email = ? ORDER BY `check` ASC, id DESC', [email], (error, results, fields) => {
+        if (error) {
+            console.error(error);
+            res.status(500).send('편지 가져오기 실패..');
+        } else {
+            if (results.length === 0) {
+                // 편지가 없는 경우
+                res.status(404).json({ message: '해당 이메일로 작성된 편지가 없습니다.' });
+            } else {
+                // 편지가 있는 경우
+                res.json({ letters: results });
+            }
+        }
+    });
+});
+
+// 편지 읽음 처리 라우터
+router.put('/letters/:id/markAsRead', (req, res) => {
+    const letterId = req.params.id;
+
+    db.query('UPDATE Letter SET `check` = 1 WHERE id = ?', [letterId], (error, results, fields) => {
+        if (error) {
+            console.error(error);
+            res.status(500).send('읽음 표시에 실패했습니다.');
+        } else {
+            res.status(200).send('편지를 읽음으로 표시했습니다.');
+        }
+    });
+});
+
+// 읽지 않은 편지 카운트 알려주는 라우터
+router.get('/unreadLetters/:email', (req, res) => {
+    const email = req.params.email;
+
+    db.query('SELECT COUNT(*) AS unreadCount FROM Letter WHERE email = ? AND `check` = 0', [email], (error, results, fields) => {
+        if (error) {
+            console.error(error);
+            res.status(500).json({ error: '안 읽은 편지 수를 가져오는 데 실패했습니다.' });
+        } else {
+            const unreadCount = results[0].unreadCount || 0;
+            res.json({ unreadCount });
+        }
+    });
+});
+
 
 module.exports = router;

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     renderCalendar();
     TimeDropdowns();
     populateMonthDropdown();
+    radioHelp();
 });
 
 // 페이지 로드시와 해시 변경 시 함수 호출
@@ -14,11 +15,26 @@ window.addEventListener('load', function () {
     // 페이지 로드 시 호출
     checkHash();
 });
-
 window.addEventListener('hashchange', function () {
     // 해시 변경 시 호출
     checkHash();
 });
+
+// 모바일 환경에 따른 css 수정
+function addClassOnMobile() {
+    const windowWidth = window.innerWidth;
+
+    const btnGroup = document.querySelector('.btn-group');
+
+    if (windowWidth <= 768) { // 모바일 환경을 나타내는 너비 조건
+        btnGroup.classList.add('btn-group-sm');
+    } else {
+        btnGroup.classList.remove('btn-group-sm');
+    }
+}
+// 페이지 로드 시와 리사이즈 이벤트 발생 시 클래스 추가
+window.addEventListener('load', addClassOnMobile);
+window.addEventListener('resize', addClassOnMobile);
 
 // 로그인한 카카오 정보 Main 페이지에서 불러옴.
 Kakao.init('7168560f2aefd9e7c731e481723fcf25');
@@ -37,6 +53,7 @@ function getUser() {
             console.log(email, name);
             const userInfoElement = document.getElementById('user-info');
             userInfoElement.innerHTML = `닉네임: ${name}<br>이메일: ${email}`;
+            checkDiaryAndUnreadLetters();
         },
         fail: function (error) {
             const modal = document.getElementById('dynamicModal');
@@ -327,7 +344,25 @@ function renderPagination(totalPages) {
 
     pagination.innerHTML = '';
 
-    for (let i = 1; i <= totalPages; i++) {
+    const numLinksToShow = 5; // 보여줄 페이지 링크의 최대 개수
+    const halfLinks = Math.floor(numLinksToShow / 2);
+    let startPage = 1;
+    let endPage = totalPages;
+
+    if (totalPages > numLinksToShow) {
+        if (currentPage <= halfLinks) {
+            startPage = 1;
+            endPage = numLinksToShow;
+        } else if (currentPage + halfLinks >= totalPages) {
+            startPage = totalPages - numLinksToShow + 1;
+            endPage = totalPages;
+        } else {
+            startPage = currentPage - halfLinks;
+            endPage = currentPage + halfLinks;
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
         const pageItem = document.createElement('li');
         pageItem.classList.add('page-item');
         const pageLink = document.createElement('a');
@@ -345,6 +380,7 @@ function renderPagination(totalPages) {
         currentPageLink.classList.add('active');
     }
 }
+
 
 // 일기목록 리스트 클릭스 활성화 되는 모달 
 function openDiaryModal(date, content, answer, positivity, negativity, neutral) {
@@ -978,3 +1014,282 @@ function pairingStart() {
             console.error('Error:', error);
         });
 }
+
+// 페어에게 편지 쓰는 부분
+async function Writeletter() {
+    try {
+        const response = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/checkPairing', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        if (data.pairingValue === 1) {
+            pairEmail = data.pairingEmail;
+            const modalElement = document.getElementById('WriteModal');
+            const modal = new bootstrap.Modal(modalElement)
+            modal.show();
+        } else {
+            openModal("알림", "연결된 페어가 없습니다.")
+        }
+    } catch (error) {
+        console.error('Error :', error);
+    }
+}
+
+function letterSend() {
+    const head = document.getElementById('message-head').value;
+    const content = document.getElementById('message-text').value;
+
+    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/letterSend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: pairEmail, head: head, content: content })
+    })
+    $('#WriteModal').modal('hide');
+    openModal("알림", "페어에게 편지를 성공적으로 보냈습니다.")
+}
+
+function Loadletter() {
+    const modalElement = document.getElementById('letterBoxModal');
+    const modal = new bootstrap.Modal(modalElement);
+
+    fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/letters/${email}`)
+        .then(response => {
+            if (!response.ok) {
+                openModal("알림", "편지함이 비어있습니다.");
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.message) {
+                console.log(data.message); // 편지가 없는 경우 메시지 출력
+            } else {
+                const letters = data.letters; // 편지 배열
+                const tableBody = document.querySelector('#letterList tbody');
+
+                // 기존에 있던 내용은 모두 지우고 새로운 데이터로 채웁니다.
+                tableBody.innerHTML = '';
+
+                // 받아온 데이터를 테이블에 추가합니다.
+                letters.forEach((letter, index) => {
+                    const row = document.createElement('tr');
+
+                    const numberCell = document.createElement('th');
+                    numberCell.setAttribute('scope', 'row');
+                    numberCell.textContent = index + 1;
+
+                    const headCell = document.createElement('td');
+                    headCell.textContent = letter.head.length > 5 ? letter.head.substring(0, 5)
+                        + '...' : letter.head;
+
+                    const contentCell = document.createElement('td');
+                    // 글자수 제한하여 표시
+                    const maxLength = 20;
+                    contentCell.textContent = letter.content.length > maxLength ? letter.content.substring(0, maxLength)
+                        + '...' : letter.content;
+
+                    // 이미 읽은 편지일 경우 회색으로 표시
+                    if (letter.check === 1) {
+                        numberCell.style.color = 'lightgrey';
+                        headCell.style.color = 'lightgrey';
+                        contentCell.style.color = 'lightgrey';
+                    }
+
+                    row.appendChild(numberCell);
+                    row.appendChild(headCell);
+                    row.appendChild(contentCell);
+
+                    row.addEventListener('click', () => {
+                        $('#letterBoxModal').modal('hide');
+                        const modalElement = document.getElementById('letterView');
+                        const modal = new bootstrap.Modal(modalElement)
+                        const modalTitle = document.getElementById('letterViewLabel');
+                        const modalBody = document.getElementById('letterViewbody');
+
+                        modalTitle.textContent = letter.head;
+                        modalBody.textContent = letter.content;
+
+                        const readButton = document.querySelector('#letterView .btn-primary');
+                        // 모달이 열릴 때 이벤트를 캐치하여 버튼을 활성화/비활성화
+                        modalElement.addEventListener('shown.bs.modal', function () {
+                            if (letter.check === 1) {
+                                readButton.disabled = true;
+                                readButton.style.backgroundColor = 'lightgrey';
+                                readButton.style.borderColor = 'lightgrey';
+                            } else {
+                                readButton.disabled = false;
+                                readButton.style.backgroundColor = '#0d6efd';
+                                readButton.style.borderColor = '#0d6efd';
+                                readButton.onclick = () => markLetterAsRead(letter.id); // 읽음 버튼 클릭 시 해당 편지를 읽음으로 표시하는 함수 호출
+                            }
+                        });
+
+                        modal.show();
+                    });
+
+                    tableBody.appendChild(row);
+                });
+
+                // 데이터가 로드된 후에 모달을 엽니다.
+                modal.show();
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+}
+
+// 편지 읽음으로 표시 함수
+function markLetterAsRead(letterId) {
+    fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/letters/${letterId}/markAsRead`, {
+        method: 'PUT'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to mark letter as read');
+            }
+            // 편지를 읽음으로 표시한 후, 배지 업데이트 요청
+            updateBadgeCount();
+            // 모달을 닫을 수 있도록
+            $('#letterView').modal('hide');
+        })
+        .catch(error => {
+            console.error('Error marking letter as read:', error);
+        });
+}
+
+// 배지 카운트 업데이트 함수
+function updateBadgeCount() {
+    fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/unreadLetters/${email}`)
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.querySelector('.badge');
+            if (data.unreadCount > 0) {
+                badge.style.display = 'inline-block';
+                badge.textContent = data.unreadCount;
+            } else {
+                badge.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error updating badge count:', error);
+        });
+}
+
+
+// 안 읽은 편지의 개수를 표시하는 함수
+function openLetter() {
+    console.log("dd")
+    fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/unreadLetters/${email}`)
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.querySelector('#collapseThree .badge');
+            if (data.unreadCount && data.unreadCount > 0) {
+                badge.textContent = data.unreadCount > 99 ? '99+' : data.unreadCount;
+                badge.style.display = 'inline'; // 안 읽은 편지 수가 있을 때 배지 표시
+            } else {
+                badge.style.display = 'none'; // 안 읽은 편지가 없을 때 배지 숨기기
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching unread count:', error);
+        });
+}
+
+// 해당 날짜 일기 작성 여부와 안 읽은 편지 개수 Toast창으로 알려주는 함수
+function checkDiaryAndUnreadLetters() {
+    const offset = 1000 * 60 * 60 * 9
+    const koreaNow = new Date((new Date()).getTime() + offset)
+    const today = koreaNow.toISOString().split('T')[0];
+    let unreadCount = 0;
+    let exist = 0;
+
+    // 일기 확인
+    fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/checkDiary', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, date: today })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                exist = 1;
+            }
+        })
+        .catch(error => {
+            console.error('일기 확인 중 오류가 발생했습니다:', error);
+        });
+
+    // 안 읽은 편지 확인
+    fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/unreadLetters/${email}`)
+        .then(response => response.json())
+        .then(data => {
+            unreadCount = data.unreadCount;
+            const toastElement = document.querySelector('#liveToast2');
+            const toastElement2 = document.querySelector('#liveToast3');
+            const toast = new bootstrap.Toast(toastElement);
+            const toast2 = new bootstrap.Toast(toastElement2);
+            const toastbody = document.getElementById('toastbody2');
+            const toastbody2 = document.getElementById('toastbody3');
+            if (unreadCount > 0) {
+                if (exist === 0) {
+                    console.log("Dd")
+                    toastbody.textContent = `읽지 않은 편지 ${unreadCount}개가 있습니다.`
+                    toastbody2.textContent = `오늘 일기를 아직 작성하지 않았습니다!`
+                    toast.show();
+                    toast2.show();
+                } else {
+                    toastbody.textContent = `읽지 않은 편지 ${unreadCount}개가 있습니다.`
+                    toast.show();
+                }
+            } else if (exist === 0) {
+                toastbody2.textContent = `오늘 일기를 아직 작성하지 않았습니다!`
+                toast2.show();
+            }
+        })
+        .catch(error => {
+            console.error('안 읽은 편지 확인 중 오류가 발생했습니다:', error);
+        });
+}
+
+// 도움말 라디오 버튼 관련 함수
+function radioHelp() {
+    const radios = [
+        document.getElementById('btnradio1'),
+        document.getElementById('btnradio2'),
+        document.getElementById('btnradio3'),
+        document.getElementById('btnradio4')
+    ];
+
+    const collapseExamples = [
+        document.getElementById('collapseExample'),
+        document.getElementById('collapseExample2'),
+        document.getElementById('collapseExample3'),
+        document.getElementById('collapseExample4')
+    ];
+
+    radios.forEach((radio, index) => {
+        radio.addEventListener('click', function () {
+            collapseExamples.forEach((collapse, i) => {
+                if (i !== index) {
+                    collapse.classList.remove('show');
+                }
+            });
+        });
+    });
+}
+
