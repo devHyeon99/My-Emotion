@@ -182,7 +182,7 @@ router.post('/getSchedules', (req, res) => {
     const userEmail = req.body.email;
     const scheduleDate = req.body.date;
 
-    const query = 'SELECT * FROM Daily WHERE email = ? AND date = ? ORDER BY start'
+    const query = 'SELECT id, start, end, content FROM Daily WHERE email = ? AND date = ? ORDER BY start';
 
     db.query(query, [userEmail, scheduleDate], (err, results) => {
         if (err) {
@@ -192,12 +192,111 @@ router.post('/getSchedules', (req, res) => {
             console.log('일정이 성공적으로 가져왔습니다.');
 
             const formattedResults = results.map(schedule => ({
+                id: schedule.id, // id 필드 포함
                 start: schedule.start.slice(0, 5), // 시간 형식 변환
                 end: schedule.end.slice(0, 5), // 시간 형식 변환
                 content: schedule.content
             }));
 
             res.json({ data: formattedResults }); // 데이터를 객체 안에 담아 보내기
+        }
+    });
+});
+
+// 일정 삭제 API
+router.delete('/deleteSchedule/:scheduleId', (req, res) => {
+    const scheduleId = req.params.scheduleId;
+
+    const deleteQuery = 'DELETE FROM Daily WHERE id = ?'; // Daily는 실제 테이블명으로 대체되어야 합니다.
+
+    db.query(deleteQuery, [scheduleId], (err, result) => {
+        if (err) {
+            console.error('일정 삭제 중 에러 발생:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log('일정이 성공적으로 삭제되었습니다.');
+            res.json({ message: '일정이 성공적으로 삭제되었습니다.' });
+        }
+    });
+});
+
+// 일정 수정할거 가져오기
+router.get('/getSchedule/:id', (req, res) => {
+    const scheduleId = req.params.id;
+
+    const query = 'SELECT * FROM Daily WHERE id = ?';
+
+    db.query(query, [scheduleId], (err, results) => {
+        if (err) {
+            console.error('일정을 가져오는 중 에러 발생:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log('일정이 성공적으로 가져왔습니다.');
+
+            const schedule = {
+                id: results[0].id,
+                date: results[0].date,
+                start: results[0].start,
+                end: results[0].end,
+                content: results[0].content
+            };
+
+            res.json({ schedule });
+        }
+    });
+});
+
+router.put('/updateSchedule/:scheduleId', (req, res) => {
+    const scheduleId = req.params.scheduleId;
+    const { email, date, startTime, endTime, content } = req.body;
+    const newSchedule = { start: startTime, end: endTime };
+    const getExistingSchedulesQuery = 'SELECT * FROM Daily WHERE email = ? AND date = ?';
+
+    db.query(getExistingSchedulesQuery, [email, date, scheduleId], (err, results) => {
+        if (err) {
+            console.error('기존 일정을 가져오는 중 에러 발생:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            const schedules = results;
+
+            // 겹치는 일정이 있는지 확인하는 함수
+            function isOverlap(newSchedule, schedules) {
+                for (const schedule of schedules) {
+                    if (String(schedule.id) !== scheduleId) {
+                        // 클라이언트가 보낸 일정과 데이터베이스의 일정이 겹치는지 확인
+                        if (
+                            newSchedule.start == schedule.start ||
+                            (newSchedule.start < schedule.end && newSchedule.end > schedule.start) ||
+                            newSchedule.start > newSchedule.end
+                        ) {
+                            return true; // 겹치는 일정이 있음
+                        }
+                    }
+
+                    if (String(schedule.id)=== scheduleId && newSchedule.start > newSchedule.end) {
+                        return true; // 겹치는 일정이 있음
+                    }
+                }
+                return false; // 겹치는 일정이 없음
+            }
+
+            // 새로운 일정을 추가하기 전에 겹치는 일정이 있는지 확인
+            if (isOverlap(newSchedule, schedules)) {
+                console.log('충돌이 발생합니다. 일정을 업데이트할 수 없습니다.');
+                res.json({ success: false, message: '충돌이 발생합니다. 일정을 업데이트할 수 없습니다.' });
+            } else {
+                // 겹치는 일정이 없는 경우, 기존 일정 업데이트
+                const updateScheduleQuery = 'UPDATE Daily SET date = ?, start = ?, end = ?, content = ? WHERE id = ?';
+                db.query(updateScheduleQuery, [date, startTime, endTime, content, scheduleId], (err, result) => {
+                    if (err) {
+                        console.error('일정 업데이트 중 에러 발생:', err);
+                        res.status(500).json({ error: 'Internal Server Error' });
+                    } else {
+                        console.log('일정이 성공적으로 업데이트되었습니다.');
+                        res.json({ success: true });
+                    }
+                });
+            }
         }
     });
 });
