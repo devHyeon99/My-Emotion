@@ -65,7 +65,7 @@
                     <div id="menu2" class="tab-pane">
                         <div class="d-flex justify-content-center" style="margin-bottom: 15px; white-space: nowrap;">
                             <input class="form-control search" id="diarycontent" type="text"
-                                placeholder="작성한 일기의 내용 또는 날짜를 입력해주세요." aria-label="Search">
+                                placeholder="일기의 내용 또는 날짜를 입력" aria-label="Search">
                             <button class="btn btn-outline-secondary" type="button" style="width: 15%;"
                                 onclick="diarysearch()">검 색</button>
                         </div>
@@ -254,7 +254,8 @@
                                                     <p>∙ 네번째 탭인 '나의 정보'에서는 사용자 정보를 확인하고 관리할 수 있습니다.</p>
                                                     <p>∙ '나의 감정 통계' 메뉴를 통해 작성한 일기를 1주 단위로 확인할 수 있습니다.</p>
                                                     <p>∙ '페어 감정 통계' 메뉴를 통해 페어링된 상대의 일기 감정 통계를 1주 단위로 확인할 수 있습니다.</p>
-                                                    <p>∙ '페어 편지 작성' 메뉴를 통해 페어에게 편지를 쓸 수 있습니다. 편지를 보낸 후에는 수정 및 삭제가 불가능합니다.
+                                                    <p>∙ '페어 편지 작성' 메뉴를 통해 페어에게 편지를 쓸 수 있습니다. 편지를 보낸 후에는 수정 및 삭제가
+                                                        불가능합니다.
                                                     </p>
                                                     <p>∙ 페어로부터 받은 편지는 '편지함'에서 확인할 수 있으며, 읽지 않은 편지의 개수는 뱃지로 표시됩니다.</p>
                                                 </div>
@@ -352,9 +353,50 @@
         </div>
     </div>
 
+    <!-- 일정 수정 모달 -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">일정 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="updateModalBody">
+                    <div class="form-container">
+                        <div id="scheduleForm">
+                            <div class="form-group">
+                                <label for="scheduleDate2">날짜 선택:</label>
+                                <input type="date" id="scheduleDate2" name="scheduleDate2" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="startTime2">시작 시간:</label>
+                                <select id="startTime2" name="startTime2" required>
+                                    <option value="">00:00</option>
+                                </select>
+                                <label for="endTime2">종료 시간:</label>
+                                <select id="endTime2" name="endTime2" required>
+                                    <option value="">00:00</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="scheduleContent2">일정 내용:</label>
+                                <textarea id="scheduleContent2" name="scheduleContent2" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <div class="btn-container">
+                                    <button type="button" id="submitEdit">일정 수정</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 선택 날짜 일정 오픈 모달 -->
     <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel2">선택한 일정 날짜</h5>
@@ -362,7 +404,7 @@
                 </div>
                 <div class="modal-body" id="exampleModalBody2">
                     <div id="dailyList">
-                        <table class="table table-striped table-hover">
+                        <table class="table table-striped table-hover" id="diaryTable" style="text-align:center;">
                             <caption>
                                 <div id="diaryCehck">
                                 </div>
@@ -373,6 +415,7 @@
                                     <th scope="col">시작시간</th>
                                     <th scope="col">종료시간</th>
                                     <th scope="col">일정내용</th>
+                                    <th scope="col" colspan="2">수정 및 삭제</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -397,6 +440,25 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2"
+        tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="toggleTitle">Modal 2</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="toggleBody">
+                    Hide this modal and show the first with the button below.
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-target="#exampleModal2" data-bs-toggle="modal"
+                        data-bs-dismiss="modal">뒤로가기</button>
                 </div>
             </div>
         </div>
@@ -522,7 +584,8 @@
                     ...
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="button" class="btn btn-secondary" data-bs-target="#letterBoxModal"
+                        data-bs-toggle="modal" data-bs-dismiss="modal">뒤로</button>
                     <button type="button" class="btn btn-primary" onclick="letterRead()">읽음</button>
                 </div>
             </div>

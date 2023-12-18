@@ -500,22 +500,26 @@ function dailyadd() {
 
 // 시간 관련 드롭박스 변환
 function TimeDropdowns() {
+    function createOptions(selectElement) {
+        selectElement.innerHTML = '<option value=""></option>';
+
+        for (var i = 0; i <= 23; i++) {
+            var hour = ('0' + i).slice(-2); // 시간을 2자리 형식으로 변환
+            selectElement.innerHTML += '<option value="' + hour + ':00">' + hour + ':00</option>';
+        }
+    }
+
     var startTimeSelect = document.getElementById("startTime");
     var endTimeSelect = document.getElementById("endTime");
+    var startTimeSelect2 = document.getElementById("startTime2");
+    var endTimeSelect2 = document.getElementById("endTime2");
 
-    startTimeSelect.innerHTML = '<option value=""></option>';
-    endTimeSelect.innerHTML = '<option value=""></option>';
-
-    for (var i = 0; i <= 23; i++) {
-        var hour = ('0' + i).slice(-2); // 시간을 2자리 형식으로 변환
-        startTimeSelect.innerHTML += '<option value="' + hour + ':00">' + hour + ':00</option>';
-    }
-
-    for (var j = 1; j <= 24; j++) {
-        var hour = ('0' + j).slice(-2); // 시간을 2자리 형식으로 변환
-        endTimeSelect.innerHTML += '<option value="' + hour + ':00">' + hour + ':00</option>';
-    }
+    createOptions(startTimeSelect);
+    createOptions(endTimeSelect);
+    createOptions(startTimeSelect2);
+    createOptions(endTimeSelect2);
 }
+
 
 // 날짜 클릭시에 일기 작성여부, 일정 작성목록 불러와서 모달 띄움.
 function getDaily(date) {
@@ -531,6 +535,7 @@ function getDaily(date) {
     modal.show();
 }
 
+// 일기 작성 여부 체크
 function fetchDiarycheck(modalbody, strDate) {
     fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/checkDiary', {
         method: 'POST',
@@ -557,6 +562,7 @@ function fetchDiarycheck(modalbody, strDate) {
         });
 }
 
+// 일정 데이터 서버로부터 가져오는 함수
 const tbody = document.querySelector('tbody');
 function fetchgetSchedules(strDate) {
     fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/getSchedules', {
@@ -573,7 +579,7 @@ function fetchgetSchedules(strDate) {
                 addSchedulesToTable(data.data); // 테이블에 일정 데이터 추가
             } else {
                 // 서버로부터 받은 데이터가 빈 배열인 경우 (일정이 없는 경우)
-                tbody.innerHTML = '<tr style="text-align: center;"><td colspan="4">일정이 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr style="text-align: center;"><td colspan="6">일정이 없습니다.</td></tr>';
             }
         })
         .catch(error => {
@@ -582,38 +588,106 @@ function fetchgetSchedules(strDate) {
         });
 }
 
-// 서버에서 받은 일정 데이터를 기반으로 tbody에 각 일정을 추가
+// 캘린더 날짜 클릭시 일정목록 테이블 생성 함수
 function addSchedulesToTable(data) {
     tbody.innerHTML = '';
 
-    // 서버로부터 받은 일정 데이터(data)를 순회하며 각 일정을 테이블에 추가
     data.forEach((schedule, index) => {
-        const row = document.createElement('tr'); // 새로운 <tr> 엘리먼트 생성
+        const row = document.createElement('tr');
+        row.setAttribute('id', schedule.id);
 
-        // 일련번호 열 추가
         const sequence = document.createElement('th');
         sequence.setAttribute('scope', 'row');
         sequence.textContent = index + 1;
         row.appendChild(sequence);
 
-        // 시작 시간 열 추가
         const startTime = document.createElement('td');
         startTime.textContent = schedule.start;
         row.appendChild(startTime);
 
-        // 종료 시간 열 추가
         const endTime = document.createElement('td');
         endTime.textContent = schedule.end;
         row.appendChild(endTime);
 
-        // 일정 내용 열 추가
         const content = document.createElement('td');
-        content.textContent = schedule.content;
+        const maxLength = 2;
+        const contentText = schedule.content.length > maxLength && window.innerWidth <= 767
+            ? `${schedule.content.substring(0, maxLength)}...`
+            : schedule.content;
+
+        content.textContent = contentText;
         row.appendChild(content);
 
-        // 테이블에 행 추가
+        row.addEventListener('click', () => {
+            $('#exampleModal2').modal('hide');
+
+            const toggle = new bootstrap.Modal(document.querySelector('#exampleModalToggle2'));
+
+            const head = document.getElementById('toggleTitle');
+            const body = document.getElementById('toggleBody');
+
+            const startTimeText = schedule.start
+            const endTimeText = schedule.end;
+            const contentText = schedule.content;
+
+            head.textContent = `${startTimeText} ~ ${endTimeText}`;
+            body.textContent = `${contentText}`;
+
+            toggle.show();
+        });
+
+        // Edit 버튼 생성
+        const editButton = createButton('edit', 'btn-primary', editButtonClickHandler);
+        const editCell = createButtonCell(editButton, 'text-end');
+
+        // Delete 버튼 생성
+        const deleteButton = createButton('delete', 'btn-danger', deleteButtonClickHandler);
+        const deleteCell = createButtonCell(deleteButton, 'text-start');
+
+        // 행에 Edit, Delete 버튼 추가
+        row.appendChild(editCell);
+        row.appendChild(deleteCell);
+
         tbody.appendChild(row);
     });
+}
+
+// 버튼을 생성하는 함수
+function createButton(iconName, btnClass, clickHandler) {
+    const button = document.createElement('button');
+    button.innerHTML = `<i class="material-icons">${iconName}</i>`;
+    button.classList.add('btn', btnClass);
+    button.style.fontSize = '1px'; // 버튼의 폰트 크기 설정
+    button.setAttribute('data-bs-toggle', 'none'); // 모달을 열지 않도록 설정
+    button.setAttribute('data-bs-target', ''); // 모달을 열지 않도록 설정
+
+    const icon = button.querySelector('i'); // 버튼 내의 아이콘 선택
+    icon.style.fontSize = '16px'; // 아이콘의 크기 설정
+
+    button.addEventListener('click', clickHandler);
+    return button;
+}
+
+// 버튼 셀을 생성하는 함수
+function createButtonCell(button, textClass) {
+    const cell = document.createElement('td');
+    cell.classList.add(textClass); // textClass 추가
+    cell.appendChild(button);
+    return cell;
+}
+
+// Edit 버튼 클릭 이벤트 핸들러
+function editButtonClickHandler(event) {
+    event.stopPropagation();
+    const scheduleId = event.target.closest('tr').getAttribute('id');
+    editSchedule(scheduleId);
+}
+
+// Delete 버튼 클릭 이벤트 핸들러
+function deleteButtonClickHandler(event) {
+    event.stopPropagation();
+    const scheduleId = event.target.closest('tr').getAttribute('id');
+    deleteSchedule(scheduleId);
 }
 
 // 일정 작성하는 함수
@@ -656,6 +730,8 @@ function dailywritebtn() {
                 $('#exampleModal').modal('hide');
                 const toastElement = document.querySelector('#liveToast');
                 const toast = new bootstrap.Toast(toastElement);
+                const toastbody = document.getElementById('toastbody');
+                toastbody.textContent = "일정이 성공적으로 추가되었습니다..."
                 toast.show();
             } else {
                 console.log('일정이 추가되지 않았습니다.');
@@ -668,6 +744,143 @@ function dailywritebtn() {
             // 에러 처리
         });
 }
+
+// 일정 삭제 기능
+function deleteSchedule(scheduleId) {
+    fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/deleteSchedule/${scheduleId}`, {
+        method: 'DELETE',
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log('일정이 성공적으로 삭제되었습니다.', data);
+            deleteRowFromTable(scheduleId);
+            const toastElement = document.querySelector('#liveToast');
+            const toast = new bootstrap.Toast(toastElement);
+            const toastbody = document.getElementById('toastbody');
+            toastbody.textContent = "일정을 삭제 하였습니다..."
+
+            toast.show();
+        })
+        .catch((error) => {
+            console.error('일정 삭제 중 에러가 발생했습니다.', error);
+        });
+}
+function deleteRowFromTable(scheduleId) {
+    const table = document.getElementById('diaryTable'); // 테이블의 ID를 가져옵니다.
+    const tbody = table.querySelector('tbody'); // tbody를 가져옵니다.
+    const rows = table.getElementsByTagName('tr'); // 모든 행을 가져옵니다.
+
+    let found = false; // 삭제된 여부를 확인하기 위한 변수
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const rowDataId = row.getAttribute('id'); // 각 행의 일정 ID를 가져옵니다.
+
+        if (rowDataId === scheduleId) {
+            // 해당 ID와 일치하는 행을 찾았습니다.
+            row.remove(); // 해당 행을 삭제합니다.
+            found = true; // 찾았으므로 found를 true로 변경합니다.
+            break; // 삭제 후 더 이상 반복할 필요가 없으므로 반복문을 종료합니다.
+        }
+    }
+
+    if (tbody.textContent.trim() === '') {
+        tbody.innerHTML = '<tr style="text-align: center;"><td colspan="6">일정이 없습니다.</td></tr>';
+    }
+}
+
+
+
+// 수정할 일정 데이터 가져와서 새로운 모달에 띄워줌
+function editSchedule(scheduleId) {
+    $('#exampleModal2').modal('hide');
+    const submitButton = document.getElementById('submitEdit');
+    const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+
+    submitButton.removeEventListener('click', updateSchedule);
+
+    // 서버로 해당 일정의 데이터 요청
+    fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/getSchedule/${scheduleId}`)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            // 서버로부터 받은 데이터를 모달 폼에 채워 넣기
+            const schedule = data.schedule;
+
+            modal.show();
+
+            const date = new Date(schedule.date);
+            date.setHours(date.getHours() + 9);
+            const year = date.getFullYear();
+            const month = (1 + date.getMonth()).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+
+            document.getElementById('scheduleDate2').value = formattedDate;
+            document.getElementById('startTime2').value = schedule.start;
+            document.getElementById('endTime2').value = schedule.end;
+            document.getElementById('scheduleContent2').value = schedule.content;
+
+            // 수정을 위한 데이터를 전송하는 함수 연결
+            submitButton.onclick = () => {
+                updateSchedule(scheduleId);
+            };
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}
+
+// 일정 업데이트 함수
+function updateSchedule(scheduleId) {
+    const updatedSchedule = {
+        email: email,
+        date: document.getElementById('scheduleDate2').value,
+        startTime: document.getElementById('startTime2').value,
+        endTime: document.getElementById('endTime2').value,
+        content: document.getElementById('scheduleContent2').value
+    };
+    console.log(updatedSchedule);
+    fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/updateSchedule/${scheduleId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedSchedule)
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            if (data.success) {
+                const fullDate = document.getElementById('scheduleDate2').value;
+                const dateParts = fullDate.split('-');
+                const day = dateParts[2];
+                $('#updateModal').modal('hide');
+                getDaily(day)
+            } else {
+                $('#updateModal').modal('hide');
+                openModal("알림", "일정 수정에 실패 하였습니다. 중복 또는 잘못된 시간 설정입니다.")
+            }
+        })
+        .catch((error) => {
+            console.error('일정 수정 중 에러가 발생했습니다.', error);
+        });
+}
+
+
 
 // 차트 업데이트 함수
 // 차트를 관리할 객체 생성
@@ -1226,43 +1439,41 @@ function checkDiaryAndUnreadLetters() {
     })
         .then(response => response.json())
         .then(data => {
-            if (data.exists) {
-                exist = 1;
-            }
+            if (data.exists)
+                exist = 1
+            // 안 읽은 편지 확인
+            fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/unreadLetters/${email}`)
+                .then(response => response.json())
+                .then(data => {
+                    unreadCount = data.unreadCount;
+                    const toastElement = document.querySelector('#liveToast2');
+                    const toastElement2 = document.querySelector('#liveToast3');
+                    const toast = new bootstrap.Toast(toastElement);
+                    const toast2 = new bootstrap.Toast(toastElement2);
+                    const toastbody = document.getElementById('toastbody2');
+                    const toastbody2 = document.getElementById('toastbody3');
+                    if (unreadCount > 0) {
+                        if (exist === 0) {
+                            console.log("Dd")
+                            toastbody.textContent = `읽지 않은 편지 ${unreadCount}개가 있습니다.`
+                            toastbody2.textContent = `오늘 일기를 아직 작성하지 않았습니다!`
+                            toast.show();
+                            toast2.show();
+                        } else {
+                            toastbody.textContent = `읽지 않은 편지 ${unreadCount}개가 있습니다.`
+                            toast.show();
+                        }
+                    } else if (exist === 0) {
+                        toastbody2.textContent = `오늘 일기를 아직 작성하지 않았습니다!`
+                        toast2.show();
+                    }
+                })
+                .catch(error => {
+                    console.error('안 읽은 편지 확인 중 오류가 발생했습니다:', error);
+                });
         })
         .catch(error => {
             console.error('일기 확인 중 오류가 발생했습니다:', error);
-        });
-
-    // 안 읽은 편지 확인
-    fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/unreadLetters/${email}`)
-        .then(response => response.json())
-        .then(data => {
-            unreadCount = data.unreadCount;
-            const toastElement = document.querySelector('#liveToast2');
-            const toastElement2 = document.querySelector('#liveToast3');
-            const toast = new bootstrap.Toast(toastElement);
-            const toast2 = new bootstrap.Toast(toastElement2);
-            const toastbody = document.getElementById('toastbody2');
-            const toastbody2 = document.getElementById('toastbody3');
-            if (unreadCount > 0) {
-                if (exist === 0) {
-                    console.log("Dd")
-                    toastbody.textContent = `읽지 않은 편지 ${unreadCount}개가 있습니다.`
-                    toastbody2.textContent = `오늘 일기를 아직 작성하지 않았습니다!`
-                    toast.show();
-                    toast2.show();
-                } else {
-                    toastbody.textContent = `읽지 않은 편지 ${unreadCount}개가 있습니다.`
-                    toast.show();
-                }
-            } else if (exist === 0) {
-                toastbody2.textContent = `오늘 일기를 아직 작성하지 않았습니다!`
-                toast2.show();
-            }
-        })
-        .catch(error => {
-            console.error('안 읽은 편지 확인 중 오류가 발생했습니다:', error);
         });
 }
 

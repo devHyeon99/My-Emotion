@@ -51,6 +51,28 @@
         margin-bottom: 30px;
         width: 60%;
     }
+
+    th {
+        white-space: nowrap;
+        font-size: 14px;
+    }
+
+    /* 모바일 환경에서 토스트창 하단 중앙 정렬 */
+    #liveToastContainer {
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
+        max-width: 90%;
+    }
+
+    /* 모바일 화면에서 메뉴 항목의 높이를 조절하여 한 줄로 글씨 표시 */
+    .nav-link {
+        display: inline-flex;
+        white-space: nowrap;
+        /* 글씨가 넘칠 경우 줄 바꿈 방지 */
+        padding: 0.5em 0.5em;
+    }
 }
 
 .nav-link {
@@ -72,29 +94,6 @@
     background-color: rgb(226, 226, 226);
     color: black;
     box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* 모바일 화면에서 메뉴 항목의 높이를 조절하여 한 줄로 글씨 표시 */
-@media (max-width: 767px) {
-    .nav-link {
-        display: inline-flex;
-        white-space: nowrap;
-        /* 글씨가 넘칠 경우 줄 바꿈 방지 */
-        padding: 0.5em 0.5em;
-    }
-}
-
-/* 모바일 환경에서 토스트창 하단 중앙 정렬 */
-@media (max-width: 767px) {
-
-    /* 모바일 화면일 때 */
-    #liveToastContainer {
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: auto;
-        max-width: 90%;
-    }
 }
 
 /* 사용자에게 일기 작성에 대한 답변 보여주는 부분 */
@@ -346,7 +345,7 @@
     color: black;
 }
 
-.btn.writeletter:hover{
+.btn.writeletter:hover {
     border-color: gray;
     background-color: gray;
     color: black;
@@ -360,8 +359,16 @@
     box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
     color: black;
 }
-.btn.letterBox:hover{
+
+.btn.letterBox:hover {
     border-color: gray;
     background-color: gray;
     color: black;
+}
+
+td, th {
+    text-align: center; /* 수평 정렬은 이미 되어 있다고 가정 */
+    vertical-align: middle; /* 수직 정렬을 중앙 정렬로 지정 */
+    display: table-cell; /* 테이블 셀로 설정 */
+    height: 100%; /* 셀의 높이를 100%로 지정 */
 }
