@@ -842,6 +842,10 @@ function editSchedule(scheduleId) {
 
 // 일정 업데이트 함수
 function updateSchedule(scheduleId) {
+    const fullDate = document.getElementById('scheduleDate2').value;
+    const dateParts = fullDate.split('-');
+    const day = dateParts[2];
+
     const updatedSchedule = {
         email: email,
         date: document.getElementById('scheduleDate2').value,
@@ -865,14 +869,21 @@ function updateSchedule(scheduleId) {
         })
         .then((data) => {
             if (data.success) {
-                const fullDate = document.getElementById('scheduleDate2').value;
-                const dateParts = fullDate.split('-');
-                const day = dateParts[2];
                 $('#updateModal').modal('hide');
                 getDaily(day)
+                const toastElement = document.querySelector('#liveToast');
+                const toast = new bootstrap.Toast(toastElement);
+                const toastbody = document.getElementById('toastbody');
+                toastbody.textContent = "일정이 수정 되었습니다."
+                toast.show();
             } else {
                 $('#updateModal').modal('hide');
-                openModal("알림", "일정 수정에 실패 하였습니다. 중복 또는 잘못된 시간 설정입니다.")
+                getDaily(day)
+                const toastElement = document.querySelector('#liveToast');
+                const toast = new bootstrap.Toast(toastElement);
+                const toastbody = document.getElementById('toastbody');
+                toastbody.textContent = "일정 수정에 실패 하였습니다. 중복 또는 잘못된 시간 설정입니다."
+                toast.show();
             }
         })
         .catch((error) => {
