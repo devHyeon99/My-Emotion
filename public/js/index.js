@@ -2,10 +2,10 @@ const fadeEls = document.querySelectorAll('.header__img img');
 const footerElements = document.querySelectorAll('.sigin__footer > *');
 
 gsap.to(fadeEls, {
-    duration: 1,
+    duration: 2,
     opacity: 1,
     stagger: 0.5, // 헤더 이미지 나타나는 간격 조절
-    delay: 0.5, // 이미지들이 나타나기까지의 대기시간
+    delay: 0.3, // 이미지들이 나타나기까지의 대기시간
     onComplete: () => {
         animateFooterElements();
     }
@@ -17,7 +17,7 @@ function animateFooterElements() {
         element.style.transition = `opacity 0.5s ease ${index * 0.3}s`;
         setTimeout(() => {
             element.style.opacity = '1';
-        }, 100);
+        }, 1);
     });
 }
 

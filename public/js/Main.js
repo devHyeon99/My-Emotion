@@ -1210,7 +1210,7 @@ async function updateAccordionBody() {
             });
         } else if (data.pairingValue === 0) {
             accordionBody.innerHTML = '<button type="button" id="pairBtn" class="btn btn-outline-primary" ' +
-                'style="margin-right:-235px;" onclick="pairingModal();">페어링</button>';
+                'onclick="pairingModal();">페어링</button>';
         }
     } catch (error) {
         console.error('Error updating accordion body:', error);
