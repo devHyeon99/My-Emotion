@@ -75,6 +75,62 @@ function logout() {
     window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=${client_id}&logout_redirect_uri=${logoutRedirectURI}`;
 }
 
+
+// 카카오 서비스 연결 끊기
+function leave() {
+    const confirmLeave = confirm("정말 회원 탈퇴하시겠습니까? \n(서비스 탈퇴시에 모든 데이터 정보가 사라집니다.)");
+    if (confirmLeave) {
+        const accessToken = localStorage.getItem('kakao_access_token');
+
+        // 만약 액세스 토큰이 있다면 카카오 서비스 연동 해제 API 호출
+        if (accessToken) {
+            fetch('https://kapi.kakao.com/v1/user/unlink', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        // 카카오 서비스 연동 해제 성공
+                        // 서버 측의 회원 탈퇴 작업을 위한 요청 추가
+                        fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/leave', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ email }) // 사용자 이메일을 서버에 전달
+                        })
+                            .then(response => {
+                                if (response.status === 200) {
+                                    // 서버 측 회원 탈퇴 성공
+                                    alert('MyEmotion에서 성공적으로 탈퇴했습니다.');
+                                    window.location.href = './index.html';
+                                } else {
+                                    // 서버 측 회원 탈퇴 실패
+                                    alert('서버에서 회원 탈퇴 중 오류가 발생했습니다.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('서버와의 통신 중 오류가 발생했습니다:', error);
+                                alert('서버와의 통신 중 오류가 발생했습니다.');
+                            });
+                    } else {
+                        // 카카오 서비스 연동 해제 실패
+                        alert('카카오 서비스 연동 해제 중 오류가 발생했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('카카오 API 호출 중 오류가 발생했습니다:', error);
+                    alert('카카오 API 호출 중 오류가 발생했습니다.');
+                });
+        } else {
+            alert('액세스 토큰이 없습니다. 카카오 서비스 연동을 해제할 수 없습니다.');
+        }
+    }
+}
+
+
 // GPT, Clova API 응답 부분
 async function generateResponse() {
     const userDiary = document.getElementById('userDiary').value;
@@ -304,19 +360,25 @@ function renderDiaryList(diaryList) {
     const listGroup = document.getElementById('diaryListContainer');
     listGroup.innerHTML = ''; // 기존 리스트 삭제
 
-    slicedDiaries.forEach((diary) => {
-        const listItem = document.createElement('a');
-        listItem.classList.add('list-group-item', 'list-group-item-action');
+    if (slicedDiaries.length === 0) {
+        const noDiaryItem = document.createElement('div');
+        noDiaryItem.classList.add('d-flex', 'justify-content-center', 'mt-3');
+        noDiaryItem.innerText = '아직 작성된 일기가 없네요. 일기를 작성 해보세요!';
+        listGroup.appendChild(noDiaryItem);
+    } else {
+        slicedDiaries.forEach((diary) => {
+            const listItem = document.createElement('a');
+            listItem.classList.add('list-group-item', 'list-group-item-action');
 
-        // 현재 날짜와 일기 쓴 날짜 차이 계산해서 사용자에게 알려줌
-        const offset = 1000 * 60 * 60 * 9;
-        const koreaNow = new Date((new Date()).getTime() + offset);
-        const formattedDate = koreaNow.toISOString().split('T')[0];
-        const currentDate = new Date(formattedDate);
-        const diaryDate = new Date(diary.date);
-        const timeDifference = Math.floor((currentDate - diaryDate) / (1000 * 60 * 60 * 24));
+            // 현재 날짜와 일기 쓴 날짜 차이 계산해서 사용자에게 알려줌
+            const offset = 1000 * 60 * 60 * 9;
+            const koreaNow = new Date((new Date()).getTime() + offset);
+            const formattedDate = koreaNow.toISOString().split('T')[0];
+            const currentDate = new Date(formattedDate);
+            const diaryDate = new Date(diary.date);
+            const timeDifference = Math.floor((currentDate - diaryDate) / (1000 * 60 * 60 * 24));
 
-        listItem.innerHTML = `
+            listItem.innerHTML = `
             <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1">${diary.date}</h5>
                 <small>${timeDifference} days ago</small>
@@ -324,13 +386,14 @@ function renderDiaryList(diaryList) {
             <p class="mb-1 text-start">${diary.content}</p>
         `;
 
-        // 클릭 이벤트에서 모달 열기 함수 호출
-        listItem.addEventListener('click', () => {
-            openDiaryModal(diary.date, diary.content, diary.answer, diary.positivity, diary.negativity, diary.neutral);
-        });
+            // 클릭 이벤트에서 모달 열기 함수 호출
+            listItem.addEventListener('click', () => {
+                openDiaryModal(diary.date, diary.content, diary.answer, diary.positivity, diary.negativity, diary.neutral);
+            });
 
-        listGroup.appendChild(listItem);
-    });
+            listGroup.appendChild(listItem);
+        });
+    }
 }
 
 // 페이지 네이션 동적 추가 부분
@@ -1121,6 +1184,7 @@ async function updateAccordionBody() {
 
         if (data.pairingValue === 1) {
             pairEmail = data.pairingEmail;
+            accordionBody.style.textAlign = 'left';
             accordionBody.innerHTML = `<strong>[ 페어 정보 ]</strong> <br>닉네임: ${data.pairingName} <br>이메일: ${pairEmail} <br>`;
             // 이미 select-container2가 있는지 확인합니다.
             const selectContainers = document.querySelectorAll('.select-container2');
@@ -1145,8 +1209,8 @@ async function updateAccordionBody() {
                 PairgetWeeklyStats();
             });
         } else if (data.pairingValue === 0) {
-            accordionBody.innerHTML = '<button type="button" class="btn btn-outline-primary" ' +
-                'onclick="pairingModal();">페어링</button>';
+            accordionBody.innerHTML = '<button type="button" id="pairBtn" class="btn btn-outline-primary" ' +
+                'style="margin-right:-235px;" onclick="pairingModal();">페어링</button>';
         }
     } catch (error) {
         console.error('Error updating accordion body:', error);
@@ -1228,6 +1292,7 @@ function pairingStart() {
                 toastbody.textContent = "페어링이 완료되었습니다."
 
                 toast.show();
+                updateAccordionBody();
             } else {
                 console.log('페어링에 실패했습니다.');
                 $('#oneMoreMdoal').modal('hide');

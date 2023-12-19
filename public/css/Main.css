@@ -73,6 +73,10 @@
         /* 글씨가 넘칠 경우 줄 바꿈 방지 */
         padding: 0.5em 0.5em;
     }
+
+    #pairBtn {
+        margin-right: -120px !important;
+    }
 }
 
 .nav-link {

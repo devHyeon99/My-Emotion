@@ -33,6 +33,7 @@ function loginWithKakao() {
         success: function (authObj) {
             console.log(authObj); // access토큰 값
             Kakao.Auth.setAccessToken(authObj.access_token); // access토큰값 저장
+            localStorage.setItem('kakao_access_token', authObj.access_token);
             getInfo();
         },
         fail: function (err) {
