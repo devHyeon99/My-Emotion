@@ -12,11 +12,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // 페이지 로드시와 해시 변경 시 함수 호출
 window.addEventListener('load', function () {
-    // 페이지 로드 시 호출
     checkHash();
 });
 window.addEventListener('hashchange', function () {
-    // 해시 변경 시 호출
     checkHash();
 });
 
@@ -60,7 +58,6 @@ function getUser() {
             openModal("로그인 필요", "로그인 페이지로 이동합니다.");
             // 모달의 'hidden.bs.modal' 이벤트 처리
             modal.addEventListener('hidden.bs.modal', function () {
-                // 모달이 닫힌 후에 페이지 이동
                 window.location.href = './index.html';
             });
         }
@@ -92,22 +89,19 @@ function leave() {
             })
                 .then(response => {
                     if (response.status === 200) {
-                        // 카카오 서비스 연동 해제 성공
-                        // 서버 측의 회원 탈퇴 작업을 위한 요청 추가
+                        // 서버 측 회원 탈퇴 작업
                         fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/leave', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
-                            body: JSON.stringify({ email }) // 사용자 이메일을 서버에 전달
+                            body: JSON.stringify({ email })
                         })
                             .then(response => {
                                 if (response.status === 200) {
-                                    // 서버 측 회원 탈퇴 성공
                                     alert('MyEmotion에서 성공적으로 탈퇴했습니다.');
                                     window.location.href = './index.html';
                                 } else {
-                                    // 서버 측 회원 탈퇴 실패
                                     alert('서버에서 회원 탈퇴 중 오류가 발생했습니다.');
                                 }
                             })
@@ -116,7 +110,6 @@ function leave() {
                                 alert('서버와의 통신 중 오류가 발생했습니다.');
                             });
                     } else {
-                        // 카카오 서비스 연동 해제 실패
                         alert('카카오 서비스 연동 해제 중 오류가 발생했습니다.');
                     }
                 })
@@ -175,7 +168,7 @@ async function generateResponse() {
             neutral
         };
 
-        // 데이터베이스에 저장하기 위한 API 엔드포인트 호출
+        // 다이어리 저장
         const saveDiaryResponse = await fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/saveDiary', {
             method: 'POST',
             headers: {
@@ -834,21 +827,20 @@ function deleteSchedule(scheduleId) {
         });
 }
 function deleteRowFromTable(scheduleId) {
-    const table = document.getElementById('diaryTable'); // 테이블의 ID를 가져옵니다.
-    const tbody = table.querySelector('tbody'); // tbody를 가져옵니다.
-    const rows = table.getElementsByTagName('tr'); // 모든 행을 가져옵니다.
+    const table = document.getElementById('diaryTable'); 
+    const tbody = table.querySelector('tbody'); 
+    const rows = table.getElementsByTagName('tr');
 
     let found = false; // 삭제된 여부를 확인하기 위한 변수
 
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
-        const rowDataId = row.getAttribute('id'); // 각 행의 일정 ID를 가져옵니다.
+        const rowDataId = row.getAttribute('id'); 
 
         if (rowDataId === scheduleId) {
-            // 해당 ID와 일치하는 행을 찾았습니다.
-            row.remove(); // 해당 행을 삭제합니다.
-            found = true; // 찾았으므로 found를 true로 변경합니다.
-            break; // 삭제 후 더 이상 반복할 필요가 없으므로 반복문을 종료합니다.
+            row.remove(); 
+            found = true; 
+            break;
         }
     }
 
@@ -867,7 +859,6 @@ function editSchedule(scheduleId) {
 
     submitButton.removeEventListener('click', updateSchedule);
 
-    // 서버로 해당 일정의 데이터 요청
     fetch(`https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/getSchedule/${scheduleId}`)
         .then((response) => {
             if (!response.ok) {
@@ -876,7 +867,6 @@ function editSchedule(scheduleId) {
             return response.json();
         })
         .then((data) => {
-            // 서버로부터 받은 데이터를 모달 폼에 채워 넣기
             const schedule = data.schedule;
 
             modal.show();
@@ -1048,7 +1038,6 @@ async function PairgetWeeklyStats() {
 
         if (!response.ok) {
             if (response.status === 404) {
-                console.log("몇번 띄우는거냐 이걸")
                 openModal("알림", "불러올 데이터가 없습니다.");
                 return
             } else {
@@ -1095,9 +1084,9 @@ function updateWeekDropdown(month) {
     const updateDropdown = (selectElement) => {
         selectElement.innerHTML = ''; // 기존 옵션 초기화
 
-        // "선택" 옵션 추가
+        // 선택 옵션 추가
         const defaultOption = document.createElement('option');
-        defaultOption.value = '0'; // 또는 비어 있는 값을 사용할 수 있습니다.
+        defaultOption.value = '0'; // 또는 비어 있는 값을 사용
         defaultOption.textContent = '선택';
         selectElement.appendChild(defaultOption);
 
@@ -1186,9 +1175,9 @@ async function updateAccordionBody() {
             pairEmail = data.pairingEmail;
             accordionBody.style.textAlign = 'left';
             accordionBody.innerHTML = `<strong>[ 페어 정보 ]</strong> <br>닉네임: ${data.pairingName} <br>이메일: ${pairEmail} <br>`;
-            // 이미 select-container2가 있는지 확인합니다.
+            // 이미 select-container2가 있는지 확인
             const selectContainers = document.querySelectorAll('.select-container2');
-            // select-container2가 없는 경우에만 추가합니다.
+            // select-container2가 없는 경우에만 추가
             if (selectContainers.length === 0) {
                 const selectContainer = document.createElement('div');
                 selectContainer.classList.add('select-container2');
@@ -1217,6 +1206,7 @@ async function updateAccordionBody() {
     }
 }
 
+// 페어링 신청하는 모달 함수
 function pairingModal() {
     const modalElement = document.getElementById('PairingModal');
     const modal = new bootstrap.Modal(modalElement)
@@ -1224,6 +1214,7 @@ function pairingModal() {
     modal.show();
 }
 
+// 페어링 추가 함수
 function pairingRegister() {
     const modalElement = document.getElementById('oneMoreMdoal');
     const modal = new bootstrap.Modal(modalElement)
@@ -1241,7 +1232,7 @@ function pairingRegister() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email: pairingemail }) // userEmail은 사용자 이메일 값
+        body: JSON.stringify({ email: pairingemail })
     })
         .then(response => {
             if (!response.ok) {
@@ -1267,6 +1258,7 @@ function pairingRegister() {
         });
 }
 
+// 페어링 서버와 연결
 function pairingStart() {
     fetch('https://port-0-my-emotion-jvpb2mlogxbfxf.sel5.cloudtype.app/pairing', {
         method: 'POST',
@@ -1334,6 +1326,7 @@ async function Writeletter() {
     }
 }
 
+// 편지 보내는 함수
 function letterSend() {
     const head = document.getElementById('message-head').value;
     const content = document.getElementById('message-text').value;
@@ -1349,6 +1342,7 @@ function letterSend() {
     openModal("알림", "페어에게 편지를 성공적으로 보냈습니다.")
 }
 
+// 편지 불러오는 함수
 function Loadletter() {
     const modalElement = document.getElementById('letterBoxModal');
     const modal = new bootstrap.Modal(modalElement);
@@ -1363,15 +1357,15 @@ function Loadletter() {
         })
         .then(data => {
             if (data.message) {
-                console.log(data.message); // 편지가 없는 경우 메시지 출력
+                console.log(data.message); // 편지가 없는 경우
             } else {
                 const letters = data.letters; // 편지 배열
                 const tableBody = document.querySelector('#letterList tbody');
 
-                // 기존에 있던 내용은 모두 지우고 새로운 데이터로 채웁니다.
+                // 기존에 있던 내용은 모두 지우고 새로운 데이터로
                 tableBody.innerHTML = '';
 
-                // 받아온 데이터를 테이블에 추가합니다.
+                // 받아온 데이터를 테이블에 추가
                 letters.forEach((letter, index) => {
                     const row = document.createElement('tr');
 
@@ -1430,8 +1424,6 @@ function Loadletter() {
 
                     tableBody.appendChild(row);
                 });
-
-                // 데이터가 로드된 후에 모달을 엽니다.
                 modal.show();
             }
         })
