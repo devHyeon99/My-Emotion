@@ -160,7 +160,7 @@ router.post('/leave', (req, res) => {
     // 서버에서 다이어리 목록을 가져오는 엔드포인트
     router.post('/diaryList', (req, res) => {
         const userEmail = req.body.email;
-        const searchContent = req.body.content; // 추가: 검색어 받기
+        const searchContent = req.body.content;
 
         let query = 'SELECT *, answer, positivity, negativity, neutral FROM Diary WHERE email = ?';
 
@@ -254,7 +254,7 @@ router.post('/leave', (req, res) => {
                     content: schedule.content
                 }));
 
-                res.json({ data: formattedResults }); // 데이터를 객체 안에 담아 보내기
+                res.json({ data: formattedResults }); 
             }
         });
     });
@@ -263,7 +263,7 @@ router.post('/leave', (req, res) => {
     router.delete('/deleteSchedule/:scheduleId', (req, res) => {
         const scheduleId = req.params.scheduleId;
 
-        const deleteQuery = 'DELETE FROM Daily WHERE id = ?'; // Daily는 실제 테이블명으로 대체되어야 합니다.
+        const deleteQuery = 'DELETE FROM Daily WHERE id = ?';
 
         db.query(deleteQuery, [scheduleId], (err, result) => {
             if (err) {
@@ -363,7 +363,7 @@ router.post('/leave', (req, res) => {
         try {
             const userEmail = req.body.email;
             const selectedMonth = new Date(req.body.month); // 오늘 날짜를 가져옴
-            // 해당 월의 감정 데이터를 가져오는 쿼리 (Diary 테이블에서 해당 이메일의 감정 데이터를 가져옴) MONTH()를 이용하면 MM만 걸러서 date가져오는듯
+            // 해당 월의 감정 데이터를 가져오는 쿼리 (Diary 테이블에서 해당 이메일의 감정 데이터를 가져옴) MONTH()를 이용하면 MM만 걸러서 date가져옴
             const query = 'SELECT date, positivity, negativity, neutral FROM Diary WHERE email = ? AND MONTH(date) = MONTH(?)';
 
             db.query(query, [userEmail, selectedMonth], (err, results) => {

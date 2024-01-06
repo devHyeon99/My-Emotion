@@ -7,7 +7,7 @@ const router = express.Router();
 
 // OpenAI API 키 설정
 const openai = new OpenAI({
-    apiKey: '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'
+    apiKey: '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'
 });
 
 const clovaSentimentApiKey = "rq9g0mmbcb";

@@ -24,7 +24,7 @@
         justify-content: flex-end;
         align-items: center;
         gap: 5px;
-        width: 30%;
+        width: 40%;
     }
 }
 
@@ -49,7 +49,7 @@
         align-items: center;
         gap: 5px;
         margin-bottom: 30px;
-        width: 60%;
+        width: 100%;
     }
 
     th {
@@ -72,10 +72,6 @@
         white-space: nowrap;
         /* 글씨가 넘칠 경우 줄 바꿈 방지 */
         padding: 0.5em 0.5em;
-    }
-
-    #pairBtn {
-        margin-right: -120px !important;
     }
 }
 
@@ -326,10 +322,8 @@
 
 .flex-container {
     display: flex;
-    justify-content: space-between;
-    /* 요소 사이의 간격을 동일하게 분배합니다 */
+    justify-content: center;
     align-items: center;
-    /* 세로 방향 가운데 정렬합니다 */
 }
 
 .dailySelect2 {
